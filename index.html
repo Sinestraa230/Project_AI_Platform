@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhytoScan AI</title>
+</head>
+<body class="h-screen flex flex-col text-gray-800 font-sans bg-gray-50 overflow-hidden">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center px-6 py-3 bg-white border-b z-10 shrink-0">
+    <div class="flex items-center gap-2">
+      <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12 3.966v.034c0 4.148-3.13 7.64-7.234 8.272A8.97 8.97 0 011 10c0-1.077.19-2.115.539-3.088 1.488-.17 2.97-.23 4.461-.23 1.11 0 2.19.07 3.25.185.347-2.61 1.493-4.996 3.167-6.9.182-.2.433-.3.683-.3zM14.654 4.5c.34.425.65.877.927 1.353.473-.393.978-.756 1.508-1.085a1 1 0 00-.73-1.84c-.58.18-1.144.398-1.705.65v.922z" clip-rule="evenodd"></path><path d="M11 11.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5v1.5H11v-1.5z"></path></svg>
+      <span class="font-bold text-xl">PhytoScan AI</span>
+    </div>
+    <div class="flex gap-6 font-medium text-sm text-gray-600">
+      <a href="#" class="hover:text-green-700">Dashboard</a>
+      <a href="#" class="bg-green-100 text-green-800 px-3 py-1.5 rounded-md">Diagnose</a>
+      <a href="#" class="hover:text-green-700">History</a>
+      <a href="#" class="hover:text-green-700">Insights</a>
+      <a href="#" class="hover:text-green-700">Settings</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="w-8 h-8 rounded-full bg-gray-300 overflow-hidden">
+        <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" />
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="flex flex-1 overflow-hidden">
+    
+    <!-- Sidebar: History Log -->
+    <aside class="w-72 bg-white border-r flex flex-col shrink-0">
+      <div class="p-5 border-b">
+        <h2 class="text-xl font-bold mb-4">History Log</h2>
+        <h3 class="text-sm font-semibold text-gray-600 mb-2">Diagnosis History</h3>
+        <div class="relative">
+          <input type="text" placeholder="Search" class="w-full bg-gray-50 border rounded-md py-1.5 pl-8 pr-3 text-sm focus:outline-green-500" />
+          <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- Lịch sử mô phỏng -->
+        <div class="flex gap-3 items-center">
+          <div class="w-12 h-12 bg-gray-200 rounded-md shrink-0"></div>
+          <div>
+            <p class="text-sm font-bold">Tomato - Early Blight</p>
+            <p class="text-xs text-gray-500">(92%) • 2h ago</p>
+          </div>
+        </div>
+        <div class="flex gap-3 items-center border-t pt-3">
+          <div class="w-12 h-12 bg-gray-200 rounded-md shrink-0"></div>
+          <div>
+            <p class="text-sm font-bold">Apple - Apple Scab</p>
+            <p class="text-xs text-gray-500">(88%) • 1 day ago</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <!-- Dùng mã màu nền xanh lá giống thiết kế -->
+    <main class="flex-1 bg-[#86A789] p-8 flex justify-center items-start gap-6 overflow-y-auto">
+      
+      <!-- Upload & Diagnose Card -->
+      <div class="bg-[#F4F9F4] rounded-xl shadow-lg w-full max-w-xl p-6 flex flex-col">
+        <h2 class="text-xl font-bold text-center mb-4">Upload & Diagnose</h2>
+        
+        <!-- Khung đứt nét -->
+        <div id="upload-zone" class="border-2 border-dashed border-green-600 rounded-lg flex-1 flex flex-col items-center justify-center p-2 relative bg-[#F4F9F4] min-h-[400px] cursor-pointer group">
+          <input type="file" id="image-input" class="hidden" accept="image/*" />
+          
+          <!-- Trạng thái chưa có ảnh -->
+          <div id="upload-placeholder" class="text-center group-hover:opacity-70 transition">
+            <p class="font-medium text-gray-700">Drag and drop leaf image here or click to browse</p>
+          </div>
+
+          <!-- Trạng thái đã tải ảnh lên -->
+          <div id="image-preview-container" class="hidden absolute inset-0 p-2">
+            <img id="image-preview" src="" class="w-full h-full object-cover rounded-md" alt="Leaf" />
+            
+            <!-- Hiệu ứng Loading đè lên ảnh -->
+            <div id="loading-overlay" class="hidden absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center rounded-md">
+              <div class="bg-white px-6 py-4 rounded-xl shadow-md text-center flex flex-col items-center">
+                <!-- Spinner tròn -->
+                <svg class="animate-spin w-10 h-10 text-green-700 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="font-medium text-gray-800">Processing leaf image... <span id="progress-text">0%</span></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Analysis Results Card (Ẩn lúc đầu, hiện sau khi phân tích) -->
+      <div id="result-card" class="bg-white rounded-xl shadow-lg w-96 p-6 hidden flex-col">
+        <h2 class="text-xl font-bold mb-6 border-b pb-2">Analysis Results</h2>
+        
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <p class="text-gray-500 font-medium">Disease:</p>
+            <p id="disease-name" class="text-2xl font-bold">Tomato Blight</p>
+          </div>
+          <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
+            ⚠️ Alert
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4 mb-6">
+          <!-- Vòng tròn % -->
+          <div class="relative w-16 h-16 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90">
+              <circle cx="32" cy="32" r="28" stroke="#e5e7eb" stroke-width="6" fill="none"></circle>
+              <circle cx="32" cy="32" r="28" stroke="#16a34a" stroke-width="6" fill="none" stroke-dasharray="175.9" stroke-dashoffset="8.8" class="text-green-600"></circle>
+            </svg>
+            <span id="confidence-score" class="absolute text-sm font-bold">95%</span>
+          </div>
+          <p class="font-medium text-lg">Confidence</p>
+        </div>
+
+        <div class="mb-6">
+          <p class="font-bold mb-1">Quick Recommendation</p>
+          <p id="treatment-text" class="text-sm text-gray-600 leading-relaxed">
+            Isolate the plant, remove affected foliage, and apply copper-based fungicide to stop the spread.
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3 mt-auto">
+          <button class="bg-green-700 text-white py-2 rounded-lg font-semibold hover:bg-green-800 transition">View Treatment Plan</button>
+          <button class="bg-white border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-50 transition">Request Expert Review</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
