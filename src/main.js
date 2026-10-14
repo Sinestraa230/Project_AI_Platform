@@ -154,18 +154,33 @@ if (btnClearHistory) {
     }
   });
 }
-
-// 2. TÍNH NĂNG DARK MODE
+// 2. TÍNH NĂNG DARK MODE (Đã Fix lỗi màu sắc Cài đặt)
 const darkModeStyle = document.createElement('style');
 darkModeStyle.innerHTML = `
-  body.dark-theme { background-color: #121212 !important; color: #e0e0e0 !important; }
+  /* Đổi nền chính (Ghi đè màu xanh lá) */
+  body.dark-theme #main-content { background-color: #121212 !important; }
+  
+  /* Đổi nền các khối Card trắng thành xám đen */
   body.dark-theme aside, body.dark-theme header, body.dark-theme .bg-white { background-color: #1e1e1e !important; border-color: #333 !important; color: #e0e0e0 !important; }
+  
+  /* Chỉnh màu chữ cho dễ đọc */
   body.dark-theme .text-gray-900, body.dark-theme .text-gray-800 { color: #ffffff !important; }
+  body.dark-theme .text-gray-700 { color: #dddddd !important; } 
   body.dark-theme .text-gray-600, body.dark-theme .text-gray-500 { color: #aaaaaa !important; }
+  
+  /* Fix ô Input và các nền xám nhạt (bg-gray-50) */
+  body.dark-theme input, body.dark-theme select, body.dark-theme .bg-gray-50 { background-color: #2a2a2a !important; color: #ffffff !important; border-color: #444 !important; }
+  
+  /* Nền các khối đặc thù khác */
   body.dark-theme .bg-\\[\\#F8FAF8\\], body.dark-theme .bg-\\[\\#F4F9F4\\] { background-color: #242424 !important; }
-  body.dark-theme .bg-green-100 { background-color: #1b4332 !important; color: #a3e635 !important; }
+  
+  /* Chỉnh lại các màu xanh điểm nhấn cho hài hòa */
+  body.dark-theme .bg-green-100, body.dark-theme .bg-green-50 { background-color: #1b4332 !important; color: #a3e635 !important; }
   body.dark-theme .text-green-800 { color: #a3e635 !important; }
-  body.dark-theme .border-gray-100, body.dark-theme .border-gray-200 { border-color: #333 !important; }
+  body.dark-theme .border-green-50 { border-color: #333 !important; }
+  
+  /* Đường viền chung */
+  body.dark-theme .border-gray-100, body.dark-theme .border-gray-200, body.dark-theme .border-gray-300 { border-color: #444 !important; }
 `;
 document.head.appendChild(darkModeStyle);
 
@@ -183,7 +198,6 @@ applyTheme(savedTheme);
 if (themeSelect) {
   themeSelect.addEventListener('change', (e) => applyTheme(e.target.value));
 }
-
 // 3. TÍNH NĂNG ĐỔI NGÔN NGỮ (FIX LỖI CHỌN PHẦN TỬ)
 const dict = {
   vi: {

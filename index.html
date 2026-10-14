@@ -459,99 +459,50 @@
       </main>
 
       <!-- VIEW: CÀI ĐẶT -->
+      <!-- VIEW: CÀI ĐẶT -->
       <main id="view-cài đặt" class="tab-content p-8 hidden h-full overflow-y-auto">
         <div class="mb-6 text-white">
           <h2 class="text-3xl font-bold mb-1">Cài đặt hệ thống</h2>
           <p class="text-sm font-medium opacity-90 uppercase tracking-wide">Quản lý tài khoản và thiết lập hệ thống</p>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <!-- Left Small Column (Tabs) -->
-          <div class="bg-white rounded-2xl shadow-sm p-4 h-fit">
-            <ul class="space-y-1">
-              <li><button class="w-full text-left px-4 py-3 rounded-lg bg-green-50 text-green-800 font-bold">Tài khoản</button></li>
-              <li><button class="w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Thông báo</button></li>
-              <li><button class="w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Mô hình AI & Kết nối</button></li>
-              <li><button class="w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Bảo mật & Đổi mật khẩu</button></li>
-            </ul>
-          </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-8 max-w-3xl border border-gray-100">
           
-          <!-- Right Large Column (Form) -->
-          <div class="bg-white rounded-2xl shadow-sm p-8 md:col-span-3 border border-gray-50">
-            <h3 class="text-xl font-bold text-gray-900 border-b pb-4 mb-6">Thông tin cá nhân</h3>
-            
-            <div class="flex items-center gap-6 mb-8">
-              <div class="w-24 h-24 rounded-full bg-[#1B4332] text-white flex items-center justify-center font-bold text-3xl shadow-inner">T</div>
-              <div>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 mb-2 transition">Đổi ảnh</button>
-                <p class="text-xs text-gray-500">JPG, GIF or PNG. Max size 2MB.</p>
-              </div>
+          <!-- Ngôn ngữ -->
+          <div class="flex items-center justify-between border-b border-gray-100 pb-6 mb-6">
+            <div>
+              <h3 class="font-bold text-gray-900 text-lg">Ngôn ngữ</h3>
+              <p class="text-sm text-gray-500 mt-1">Chọn ngôn ngữ hiển thị trên nền tảng</p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 border-b pb-8 border-gray-100">
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Họ và tên</label>
-                <input type="text" placeholder="Thành Đức" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-green-500 focus:bg-white transition">
-              </div>
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
-                <input type="email" placeholder="thanhduc@email.com" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-green-500 focus:bg-white transition">
-              </div>
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Số điện thoại</label>
-                <input type="text" placeholder="0987xxxxxx" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-green-500 focus:bg-white transition">
-              </div>
-              <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Vai trò</label>
-                <input type="text" placeholder="Kỹ thuật viên / Nhà nông nghiệp" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-green-500 focus:bg-white transition" disabled>
-              </div>
-            </div>
-
-            <div class="mb-8 border-b pb-8 border-gray-100">
-              <h4 class="text-sm font-bold text-gray-900 mb-4">Thông báo qua Email</h4>
-              <label class="flex items-center gap-3 mb-3 cursor-pointer">
-                <input type="checkbox" class="w-5 h-5 text-green-600 rounded focus:ring-green-500 accent-green-600" checked>
-                <span class="text-gray-700">Nhận báo cáo tuần</span>
-              </label>
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" class="w-5 h-5 text-green-600 rounded focus:ring-green-500 accent-green-600" checked>
-                <span class="text-gray-700">Cảnh báo dịch bệnh mới</span>
-              </label>
-            </div>
-
-            <!-- Các phần tử Select -->
-            <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label class="block text-sm font-bold text-gray-900 mb-2">Ngôn ngữ hiển thị</label>
-                <select id="lang-select" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-green-500 font-medium cursor-pointer">
-                  <option value="vi">Tiếng Việt</option>
-                  <option value="en">English</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-bold text-gray-900 mb-2">Chế độ giao diện</label>
-                <select id="theme-select" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-green-500 font-medium cursor-pointer">
-                  <option value="light">Chế độ Sáng (Mặc định)</option>
-                  <option value="dark">Chế độ Tối (Dark mode)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Nút Xóa lịch sử -->
-            <div class="mb-8 border-t pt-8 border-gray-100 flex items-center justify-between">
-              <div>
-                <h4 class="text-sm font-bold text-red-600 mb-1">Xóa dữ liệu bộ nhớ</h4>
-                <p class="text-xs text-gray-500">Xóa vĩnh viễn bảng Lịch sử chẩn đoán.</p>
-              </div>
-              <button id="btn-clear-history" class="px-4 py-2 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-600 hover:text-white transition">Xóa lịch sử</button>
-            </div>
-
-            <div class="flex items-center gap-4 justify-end mt-8">
-              <button class="px-6 py-2.5 border border-gray-300 rounded-lg font-bold text-gray-700 hover:bg-gray-50 transition">Hủy</button>
-              <button class="px-6 py-2.5 bg-[#2D6A4F] text-white rounded-lg font-bold hover:bg-[#1B4332] shadow-md transition">Lưu thay đổi</button>
-            </div>
-
+            <select id="lang-select" class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-green-500 font-medium cursor-pointer">
+              <option value="vi">Tiếng Việt</option>
+              <option value="en">English</option>
+            </select>
           </div>
+
+          <!-- Giao diện -->
+          <div class="flex items-center justify-between border-b border-gray-100 pb-6 mb-6">
+            <div>
+              <h3 class="font-bold text-gray-900 text-lg">Giao diện (Theme)</h3>
+              <p class="text-sm text-gray-500 mt-1">Lựa chọn chế độ Sáng hoặc Tối</p>
+            </div>
+            <select id="theme-select" class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-green-500 font-medium cursor-pointer">
+              <option value="light">Chế độ Sáng (Mặc định)</option>
+              <option value="dark">Chế độ Tối (Dark mode)</option>
+            </select>
+          </div>
+
+          <!-- Xóa dữ liệu -->
+          <div class="flex items-center justify-between pt-2">
+            <div>
+              <h3 class="font-bold text-red-600 text-lg">Quản lý dữ liệu</h3>
+              <p class="text-sm text-gray-500 mt-1">Xóa toàn bộ lịch sử chẩn đoán và thông tin bộ nhớ tạm</p>
+            </div>
+            <button id="btn-clear-history" class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white px-6 py-2.5 rounded-lg font-bold transition-colors">
+              Xóa lịch sử
+            </button>
+          </div>
+
         </div>
       </main>
 
