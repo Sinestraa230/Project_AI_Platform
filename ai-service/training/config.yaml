@@ -1,0 +1,29 @@
+# Cấu hình huấn luyện — EfficientNetB3 + PlantVillage (87K ảnh, 38 lớp)
+data:
+  # Trên Kaggle: để base_dir rỗng, các dir dưới là đường dẫn tuyệt đối
+  # Trên local: đặt base_dir trỏ thư mục chứa train/valid/test
+  base_dir: ""
+  train_dir: "/kaggle/input/new-plant-diseases-dataset/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/train"
+  valid_dir: "/kaggle/input/new-plant-diseases-dataset/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/valid"
+  test_dir: "/kaggle/input/new-plant-diseases-dataset/New Plant Diseases Dataset(Augmented)/New Plant Diseases Dataset(Augmented)/test"
+
+model:
+  name: efficientnetb3
+  img_size: 300
+  batch_size: 32
+  dropout: 0.3
+
+training:
+  epochs_head: 5          # huấn luyện head (backbone đóng băng)
+  epochs_finetune: 8      # fine-tune (mở khóa backbone, lr nhỏ)
+  lr_head: 0.001
+  lr_finetune: 0.00001
+  freeze_first_n: 100     # giữ 100 layer đầu đóng băng khi fine-tune
+  seed: 42
+
+output:
+  best_model_path: "/kaggle/working/plant_disease_best.keras"
+  model_path: "/kaggle/working/plant_disease_model.keras"
+  mapping_path: "/kaggle/working/class_mapping.json"
+  tflite_path: "/kaggle/working/plant_disease_model.tflite"
+  zip_path: "/kaggle/working/plant_disease_export.zip"
