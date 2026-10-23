@@ -19,6 +19,8 @@ CREATE TABLE prediction_logs(
     image_url TEXT NOT NULL,
     category_id INT REFERENCES categories(id),
     confidence_score DECIMAL(5,2),
+    metadata JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    
 
 );
