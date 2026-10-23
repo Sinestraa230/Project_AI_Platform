@@ -1,0 +1,13 @@
+﻿{
+  "id": "hiphmquangnam/plant-disease-train",
+  "title": "Plant Disease Train EfficientNetB3",
+  "code_file": "kaggle_efficientnetb3_plant_disease.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": ["vipoooool/new-plant-diseases-dataset"],
+  "competition_sources": [],
+  "kernel_sources": []
+}
