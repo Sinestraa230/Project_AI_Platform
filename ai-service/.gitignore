@@ -1,0 +1,7 @@
+﻿# Dữ liệu & model không commit
+data/
+*.pt
+*.pth
+*.onnx
+__pycache__/
+.venv/
