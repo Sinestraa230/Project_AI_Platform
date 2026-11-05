@@ -2,3 +2,29 @@
 .env
 .env.*
 !.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Database SQLite cục bộ
+*.db
+*.sqlite3
+
+# Output train từ Kaggle (model nặng, không commit)
+kaggle_output/
+*.keras
+*.h5
+*.tflite
+*.zip
+
+# Log, OS, IDE
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
