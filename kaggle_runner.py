@@ -1,8 +1,11 @@
-﻿"""
-kaggle_runner.py — "trạm trung chuyển" giữa máy local và Kaggle.
+﻿"""kaggle_runner.py — điều khiển kernel Kaggle từ máy local.
 
-Máy local CHỈ điều khiển: đẩy notebook lên Kaggle, chờ chạy xong (GPU cloud),
-tải output về, giải nén model + mapping vào backend/ai_artifacts/.
+Cách dùng:
+  # Lần đầu: push notebook lên Kaggle, chờ chạy xong, tải output về
+  python kaggle_runner.py --kernel <username>/<slug>
+
+  # Kernel ĐÃ chạy trên Kaggle: chỉ chờ + tải output (không push lại)
+  python kaggle_runner.py --kernel <username>/<slug> --no-push
 """
 import argparse
 import os
@@ -13,12 +16,12 @@ import time
 import zipfile
 
 
-def run(cmd: list) -> subprocess.CompletedProcess:
+def run(cmd):
     print("$", " ".join(cmd))
     return subprocess.run(cmd, check=True)
 
 
-def kernel_status(kernel: str) -> str:
+def kernel_status(kernel):
     out = subprocess.run(
         ["kaggle", "kernels", "status", kernel],
         capture_output=True,
@@ -28,24 +31,29 @@ def kernel_status(kernel: str) -> str:
     return lines[-1] if lines else "unknown"
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Điều khiển Kaggle từ máy local")
+def main():
+    parser = argparse.ArgumentParser(description="Điều khiển kernel Kaggle từ máy local")
     parser.add_argument("--kernel", required=True,
-                        help="kernel trên Kaggle, dạng: <username>/<slug>")
+                        help="kernel trên Kaggle: <username>/<slug>")
     parser.add_argument("--kernel-dir", default="kernel",
                         help="thư mục chứa notebook .ipynb + kernel-metadata.json")
     parser.add_argument("--out", default="backend/ai_artifacts",
                         help="thư mục đích cho model + class_mapping.json")
+    parser.add_argument("--no-push", action="store_true",
+                        help="không push, chỉ chờ + tải output của kernel đang chạy trên Kaggle")
     args = parser.parse_args()
 
     if shutil.which("kaggle") is None:
-        sys.exit("Chưa cài kaggle CLI. Chạy: pip install kaggle  (hoặc pipx install kaggle)")
+        sys.exit("Chưa cài kaggle CLI. Chạy: pip install kaggle")
 
-    if not os.path.exists(os.path.join(args.kernel_dir, "kernel-metadata.json")):
-        sys.exit(f"Thiếu {args.kernel_dir}/kernel-metadata.json")
-
-    print("==> [1/4] Push notebook lên Kaggle và kích hoạt chạy (GPU)...")
-    run(["kaggle", "kernels", "push", "-p", args.kernel_dir])
+    if not args.no_push:
+        meta = os.path.join(args.kernel_dir, "kernel-metadata.json")
+        if not os.path.exists(meta):
+            sys.exit(f"Thiếu {meta}")
+        print("==> [1/4] Push notebook lên Kaggle và kích hoạt chạy (GPU)...")
+        run(["kaggle", "kernels", "push", "-p", args.kernel_dir])
+    else:
+        print("==> [1/4] Bỏ qua push (--no-push) — dùng kernel đang chạy trên Kaggle...")
 
     print("==> [2/4] Chờ kernel chạy xong (có thể mất 30-60 phút)...")
     while True:
@@ -73,9 +81,9 @@ def main() -> None:
         for name in os.listdir(args.out):
             print("      -", name)
     else:
-        print(f"    Không thấy plant_disease_export.zip — hãy xem thư mục {out_dir}/")
+        print(f"    Không thấy plant_disease_export.zip — xem thư mục {out_dir}/")
 
-    print("XONG! Giờ chạy backend: cd backend && uvicorn app.main:app --reload")
+    print("XONG! Chạy backend: cd backend && uvicorn app.main:app --reload")
 
 
 if __name__ == "__main__":

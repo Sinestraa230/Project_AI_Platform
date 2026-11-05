@@ -1,5 +1,5 @@
-﻿{
-  "id": "hiphmquangnam/plant-disease-train",
+{
+  "id": "hiphmquangnam/plant-disease-train-efficientnetb3",
   "title": "Plant Disease Train EfficientNetB3",
   "code_file": "kaggle_efficientnetb3_plant_disease.ipynb",
   "language": "python",
