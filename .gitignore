@@ -1,1 +1,4 @@
-
+ # Local environment (tuyệt đối không đẩy lên git)
+.env
+.env.*
+!.env.example
