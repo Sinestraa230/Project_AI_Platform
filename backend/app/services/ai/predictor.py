@@ -1,8 +1,8 @@
 """Logic inference: ảnh bytes -> kết quả dự đoán (top-1 + top-k)."""
 import numpy as np
 
-from ...config import AI_MODEL_VERSION, CONFIDENCE_THRESHOLD, TOP_K
-from .model_loader import get_mapping, get_model
+from ...config import CONFIDENCE_THRESHOLD, TOP_K
+from .model_loader import get_mapping, get_model, get_model_version
 from .preprocess import preprocess_image
 
 
@@ -42,6 +42,6 @@ def predict(image_bytes: bytes) -> dict:
         "is_healthy": "healthy" in top1["class_name"].lower(),
         "confidence_score": top1["confidence_score"],
         "is_confident": top1["confidence_score"] >= CONFIDENCE_THRESHOLD,
-        "model_version": AI_MODEL_VERSION,
+        "model_version": get_model_version(),
         "top_k": top_k,
     }

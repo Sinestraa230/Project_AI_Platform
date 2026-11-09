@@ -1,4 +1,4 @@
-"""Bảng lưu lịch sử dự đoán (tùy chọn — bật SAVE_TO_DB=true)."""
+"""Bảng lưu lịch sử dự đoán (SAVE_TO_DB=true) — trang History đọc qua GET /api/history."""
 from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String

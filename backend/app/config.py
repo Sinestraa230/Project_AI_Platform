@@ -32,15 +32,26 @@ AI_MODEL_PATH = _path("AI_MODEL_PATH", BASE_DIR / "ai_artifacts" / "plant_diseas
 AI_CLASS_MAPPING_PATH = _path(
     "AI_CLASS_MAPPING_PATH", BASE_DIR / "ai_artifacts" / "class_mapping.json"
 )
+AI_MODEL_INFO_PATH = _path("AI_MODEL_INFO_PATH", BASE_DIR / "ai_artifacts" / "model_info.json")
+# Kết quả đánh giá lúc train (độ đo từng lớp, gợi ý ngưỡng) — GET /api/model
+AI_METRICS_PATH = _path("AI_METRICS_PATH", BASE_DIR / "ai_artifacts" / "metrics.json")
+# Chỉ dùng khi model cũ chưa có model_info.json (phiên bản thật đọc từ file đó)
 AI_MODEL_VERSION = _env("AI_MODEL_VERSION", "efficientnetb3_v1.0")
 AI_IMG_SIZE = int(_env("AI_IMG_SIZE", "300"))  # khớp kích thước huấn luyện
 TOP_K = int(_env("TOP_K", "5"))
 # Dưới ngưỡng này -> coi như không nhận diện được (ảnh không phải lá / không rõ)
 CONFIDENCE_THRESHOLD = float(_env("CONFIDENCE_THRESHOLD", "0.6"))
 
+# --- Nguồn model (Hugging Face Hub) ---
+HF_REPO_ID = _env("HF_REPO_ID", "")
+HF_TOKEN = _env("HF_TOKEN", "")  # token loại Read; cần vì repo đang private
+HF_REVISION = _env("HF_REVISION", "")  # rỗng = main; đặt tag/commit để ghim phiên bản
+# Thiếu model khi khởi động -> tự tải từ HF (nếu có HF_REPO_ID)
+AUTO_DOWNLOAD_MODEL = _env("AUTO_DOWNLOAD_MODEL", "true").lower() == "true"
+
 # --- Upload ---
 MAX_UPLOAD_MB = float(_env("MAX_UPLOAD_MB", "10"))
 MAX_UPLOAD_BYTES = int(MAX_UPLOAD_MB * 1024 * 1024)
 
-# Lưu lịch sử dự đoán vào DB? (true khi đã sẵn sàng DB)
-SAVE_TO_DB = _env("SAVE_TO_DB", "false").lower() == "true"
+# Lưu lịch sử dự đoán vào DB (trang History của FE đọc từ đây)
+SAVE_TO_DB = _env("SAVE_TO_DB", "true").lower() == "true"

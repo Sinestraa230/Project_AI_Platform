@@ -8,10 +8,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import routes_crop, routes_predict
-from .config import AI_MODEL_VERSION, APP_ENV
+from .api import routes_crop, routes_history, routes_model, routes_predict
+from .config import APP_ENV
 from .database import init_db
-from .services.ai.model_loader import get_mapping, get_model
+from .services.ai.model_loader import get_mapping, get_model, get_model_info, get_model_version
 
 
 @asynccontextmanager
@@ -20,6 +20,7 @@ async def lifespan(app: FastAPI):
     init_db()
     get_model()
     get_mapping()
+    get_model_info()
     yield
 
 
@@ -27,7 +28,7 @@ app = FastAPI(
     title="Project AI Platform Backend",
     description="Nhận ảnh lá cây -> trả về bệnh + độ tin cậy (category_id, "
     "confidence_score, created_at...).",
-    version=AI_MODEL_VERSION,
+    version="1.0.0",
     lifespan=lifespan,
 )
 
@@ -40,9 +41,18 @@ app.add_middleware(
 )
 
 app.include_router(routes_predict.router)
+app.include_router(routes_history.router)
+app.include_router(routes_model.router)
 app.include_router(routes_crop.router)
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "model_version": AI_MODEL_VERSION, "env": APP_ENV}
+    info = get_model_info()
+    return {
+        "status": "ok",
+        "env": APP_ENV,
+        "model_version": get_model_version(),
+        "trained_at": info.get("trained_at"),
+        "eval_accuracy": info.get("eval_accuracy"),
+    }

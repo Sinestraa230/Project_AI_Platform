@@ -74,3 +74,28 @@ def test_too_large(client):
 def test_split_names():
     assert _split("Corn_(maize)___Common_rust_") == ("Corn (maize)", "Common rust")
     assert _split("Apple___healthy") == ("Apple", "healthy")
+
+
+def test_history_after_predict(client):
+    r = client.post("/api/predict", files={"file": ("x.jpg", _img(), "image/jpeg")})
+    new_id = r.json()["id"]
+    assert new_id is not None
+
+    page = client.get("/api/history?limit=5").json()
+    assert page["total"] >= 1
+    first = page["items"][0]
+    assert first["id"] == new_id  # mới nhất đứng đầu
+    assert first["created_at"].endswith("+00:00")
+    assert first["plant_name"] and first["disease_name"]
+
+    assert client.delete(f"/api/history/{new_id}").status_code == 204
+    assert client.delete(f"/api/history/{new_id}").status_code == 404
+
+
+def test_model_endpoint(client):
+    body = client.get("/api/model").json()
+    assert body["version"]
+    assert 0 < body["confidence_threshold"] <= 1
+    if body["metrics"]:  # chỉ có khi model train bằng notebook mới
+        assert "per_class" not in body["metrics"]
+        assert "per_class" in client.get("/api/model?per_class=true").json()["metrics"]

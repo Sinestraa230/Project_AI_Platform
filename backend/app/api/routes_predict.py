@@ -61,17 +61,17 @@ async def predict_endpoint(
 
     # 4. (Tùy chọn) lưu lịch sử vào DB — bật SAVE_TO_DB=true
     if SAVE_TO_DB:
-        db.add(
-            DetectionRecord(
-                category_id=result["category_id"],
-                class_name=result["class_name"],
-                disease_name=result["disease_name"],
-                is_healthy=result["is_healthy"],
-                confidence_score=result["confidence_score"],
-                model_version=result["model_version"],
-                created_at=now,
-            )
+        record = DetectionRecord(
+            category_id=result["category_id"],
+            class_name=result["class_name"],
+            disease_name=result["disease_name"],
+            is_healthy=result["is_healthy"],
+            confidence_score=result["confidence_score"],
+            model_version=result["model_version"],
+            created_at=now,
         )
+        db.add(record)
         db.commit()
+        result["id"] = record.id
 
     return PredictionResponse(**result)
