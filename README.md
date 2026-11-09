@@ -77,3 +77,49 @@
 
 
 ---
+
+---
+
+### Lấy model AI để chạy backend
+
+Model không nằm trong git (file nặng). Notebook Kaggle tự upload lên Hugging Face: `NamHai0510/plant-disease-model` (private).
+
+1. Nhờ người quản lý repo HF mời tài khoản của bạn vào repo, rồi tạo token loại **Read** tại https://huggingface.co/settings/tokens.
+2. `cd backend` → copy `.env.example` thành `.env` → điền `HF_TOKEN`.
+3. `pip install -r requirements.txt`
+4. `python scripts/download_model.py` (hoặc chạy thẳng backend: thiếu model thì tự tải khi khởi động).
+5. `uvicorn app.main:app --reload`
+
+Có bản model mới: `python scripts/download_model.py --force`.
+
+**Phiên bản model:** mỗi lần train, notebook tạo mã phiên bản dạng `efficientnetb3-YYYYMMDD-HHMM`, ghi vào `model_info.json` (ngày train, accuracy, TF/Keras version…) và gắn **tag** cùng tên trên HF.
+- Xem đang chạy bản nào: `GET /health` (hoặc trường `model_version` trong mỗi kết quả `/api/predict`).
+- Ghim cả team vào 1 bản: đặt `HF_REVISION=<tag>` trong `backend/.env` rồi `python scripts/download_model.py --force`.
+- Quay lại bản cũ: đổi `HF_REVISION` sang tag cũ, tải lại như trên.
+
+---
+
+### Chạy FE + BE cùng lúc (dev)
+
+1. Backend (cổng 8000): `cd backend` → `uvicorn app.main:app --reload`
+2. Frontend (cổng 5173): `cd frontend` → `npm install` → `npm run dev`
+
+Vite tự proxy `/api` và `/health` sang `http://localhost:8000` nên không cần cấu hình CORS khi dev. Khi deploy FE tách khỏi BE: đặt `VITE_API_URL=<địa chỉ backend>` trong `frontend/.env` (xem `frontend/.env.example`).
+
+| API | Dùng ở |
+|---|---|
+| `POST /api/predict` (form-data `file`) | Trang Chẩn đoán |
+| `GET /api/history?limit=&offset=` · `DELETE /api/history/{id}` | Trang Lịch sử |
+| `GET /api/model[?per_class=true]` | Phiên bản model + kết quả đánh giá |
+| `GET /health` | Kiểm tra backend sống |
+
+`confidence_score` trả theo thang **0–1**; FE đổi sang % trong `frontend/src/services/diagnosisService.js`.
+
+### Kết quả đánh giá model
+
+Mỗi lần train, notebook lưu cùng model (zip + Hugging Face):
+- `metrics.json` — accuracy, macro/weighted F1, precision/recall/F1 từng lớp, 5 lớp yếu nhất, bảng **gợi ý `CONFIDENCE_THRESHOLD`** (với mỗi ngưỡng: % ảnh được trả lời, độ chính xác trên phần đó, % dự đoán sai bị chặn).
+- `history.json` — loss/accuracy theo từng epoch (head + fine-tune).
+- `confusion_matrix.png` — ma trận nhầm lẫn giữa 38 lớp.
+
+Xem nhanh qua API: `GET /api/model`.

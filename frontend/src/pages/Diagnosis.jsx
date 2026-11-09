@@ -5,12 +5,14 @@ import { LoaderCircle, ScanSearch } from 'lucide-react'
 import DiagnosisHeader from '../components/diagnosis/DiagnosisHeader'
 import ImageUploader from '../components/diagnosis/ImageUploader'
 import DiagnosisResult from '../components/diagnosis/DiagnosisResult'
+import { diagnoseImage } from '../services/diagnosisService'
 
 function Diagnosis() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [result, setResult] = useState(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     return () => {
@@ -26,29 +28,30 @@ function Diagnosis() {
     setSelectedFile(file)
     setPreviewUrl(URL.createObjectURL(file))
     setResult(null)
+    setError('')
   }
 
   const handleRemoveImage = () => {
     setSelectedFile(null)
     setPreviewUrl('')
     setResult(null)
+    setError('')
   }
 
-  const handleDiagnosis = () => {
+  const handleDiagnosis = async () => {
     if (!selectedFile || isAnalyzing) return
 
     setIsAnalyzing(true)
     setResult(null)
+    setError('')
 
-    // Mô phỏng thời gian xử lý của AI
-    setTimeout(() => {
-      setResult({
-        disease: 'Bệnh đốm lá',
-        confidence: 96.8,
-      })
-
+    try {
+      setResult(await diagnoseImage(selectedFile))
+    } catch (err) {
+      setError(err.message)
+    } finally {
       setIsAnalyzing(false)
-    }, 2000)
+    }
   }
 
   return (
@@ -128,6 +131,13 @@ function Diagnosis() {
                   </p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-2xl border border-red-100 bg-red-50 p-5 text-sm text-red-700">
+              <p className="font-semibold">Không phân tích được ảnh</p>
+              <p className="mt-1">{error}</p>
             </div>
           )}
 
