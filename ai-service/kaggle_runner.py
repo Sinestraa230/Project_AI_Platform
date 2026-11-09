@@ -1,11 +1,16 @@
-﻿"""kaggle_runner.py — điều khiển kernel Kaggle từ máy local.
+"""kaggle_runner.py — điều khiển kernel Kaggle từ máy local.
 
 Cách dùng:
   # Lần đầu: push notebook lên Kaggle, chờ chạy xong, tải output về
-  python kaggle_runner.py --kernel <username>/<slug>
+  python ai-service/kaggle_runner.py --kernel <username>/<slug>
 
   # Kernel ĐÃ chạy trên Kaggle: chỉ chờ + tải output (không push lại)
-  python kaggle_runner.py --kernel <username>/<slug> --no-push
+  python ai-service/kaggle_runner.py --kernel <username>/<slug> --no-push
+
+Đường dẫn mặc định tính theo vị trí file này (chạy từ thư mục nào cũng được):
+  ai-service/kernel/        notebook + kernel-metadata.json
+  ai-service/kaggle_output/ output tải từ Kaggle (chỉ giữ lại log)
+  backend/ai_artifacts/     model + class_mapping.json cho backend
 """
 import argparse
 import os
@@ -14,6 +19,15 @@ import subprocess
 import sys
 import time
 import zipfile
+from pathlib import Path
+
+AI_DIR = Path(__file__).resolve().parent          # ai-service/
+ROOT_DIR = AI_DIR.parent                           # gốc project
+# File trùng với nội dung zip (đã giải nén sang backend) -> xoá sau khi tải để đỡ tốn ổ
+DUPLICATE_OUTPUTS = ("plant_disease_best.keras", "plant_disease_model.keras",
+                     "plant_disease_model.tflite", "class_mapping.json", "model_info.json",
+                     "metrics.json", "history.json", "confusion_matrix.png",
+                     "plant_disease_export.zip")
 
 
 def run(cmd):
@@ -35,9 +49,9 @@ def main():
     parser = argparse.ArgumentParser(description="Điều khiển kernel Kaggle từ máy local")
     parser.add_argument("--kernel", required=True,
                         help="kernel trên Kaggle: <username>/<slug>")
-    parser.add_argument("--kernel-dir", default="kernel",
+    parser.add_argument("--kernel-dir", default=str(AI_DIR / "kernel"),
                         help="thư mục chứa notebook .ipynb + kernel-metadata.json")
-    parser.add_argument("--out", default="backend/ai_artifacts",
+    parser.add_argument("--out", default=str(ROOT_DIR / "backend" / "ai_artifacts"),
                         help="thư mục đích cho model + class_mapping.json")
     parser.add_argument("--no-push", action="store_true",
                         help="không push, chỉ chờ + tải output của kernel đang chạy trên Kaggle")
@@ -67,7 +81,7 @@ def main():
         time.sleep(60)
 
     print("==> [3/4] Tải output từ Kaggle về máy...")
-    out_dir = "kaggle_output"
+    out_dir = str(AI_DIR / "kaggle_output")
     os.makedirs(out_dir, exist_ok=True)
     run(["kaggle", "kernels", "output", args.kernel, "-p", out_dir])
 
@@ -80,6 +94,11 @@ def main():
         print("    Đã đặt:", args.out)
         for name in os.listdir(args.out):
             print("      -", name)
+        for name in DUPLICATE_OUTPUTS:
+            p = os.path.join(out_dir, name)
+            if os.path.exists(p):
+                os.remove(p)
+        print(f"    Đã dọn file trùng trong {out_dir}/ (chỉ giữ log)")
     else:
         print(f"    Không thấy plant_disease_export.zip — xem thư mục {out_dir}/")
 
