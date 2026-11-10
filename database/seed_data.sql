@@ -4,9 +4,9 @@ INSERT INTO categories (name,description,metadata) VALUES
 ('Rệp sáp', 'Côn trùng hút nhựa cây, có lớp phấn trắng bên ngoài.', '{"type": "Côn trùng", "treatment": "Dùng xà phòng hữu cơ hoặc dầu Neem"}'),
 ('Bệnh thán thư', 'Làm thối quả, đốm lá đen trên nhiều loại cây ăn quả.', '{"type": "Nấm", "treatment": "Phun Mancozeb"}');
 
-INSERT INTO users (username) VALUES
-('nongdan_01'),
-('kysu_nongnghiep');
+INSERT INTO users (username, password_hash) VALUES 
+('nongdan_01', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW'),
+('kysu_nongnghiep', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW');
 
 INSERT INTO prediction_logs(user_id,image_url,category_id,confidence_score) VALUES
 (1, 'https://dummyimage.com/daoon1.jpg', 1, 95.50),
