@@ -1,0 +1,79 @@
+# =====================================================================
+# Action dùng chung: áp migration PostgreSQL theo thứ tự, mỗi file đúng 1 lần.
+#
+# - Tạo bảng schema_migrations để ghi lại file nào đã chạy.
+# - Chạy các file *.sql trong database/migrations theo thứ tự V1, V2, ..., V10.
+# - File đã chạy thì bỏ qua -> deploy bao nhiêu lần cũng không lỗi "already exists".
+# - Mỗi file chạy trong 1 transaction: lỗi giữa chừng thì rollback, không ghi nửa vời.
+# - Seed (tuỳ chọn) cũng chỉ chạy 1 lần, tính như một migration.
+#
+# Dùng ở: ci.yml (job Database) và deploy.yml (job Migrate).
+# Quy tắc cho DBA: KHÔNG sửa file migration đã merge; thay đổi schema = thêm file mới.
+# =====================================================================
+name: DB migrate
+description: Áp các file migration PostgreSQL chưa chạy (theo thứ tự) và seed một lần
+
+inputs:
+  database-url:
+    description: Chuỗi kết nối PostgreSQL (postgresql://user:pass@host:5432/db?sslmode=require)
+    required: true
+  migrations-dir:
+    description: Thư mục chứa file migration
+    default: database/migrations
+  seed-file:
+    description: File dữ liệu mẫu
+    default: database/seed_data.sql
+  apply-seed:
+    description: '"true" để chạy seed (chỉ 1 lần)'
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Áp migration
+      shell: bash
+      env:
+        DATABASE_URL: ${{ inputs.database-url }}
+        MIGRATIONS_DIR: ${{ inputs.migrations-dir }}
+        SEED_FILE: ${{ inputs.seed-file }}
+        APPLY_SEED: ${{ inputs.apply-seed }}
+      run: |
+        set -euo pipefail
+        export PGOPTIONS="-c client_min_messages=warning"
+        PSQL=(psql "$DATABASE_URL" -X -q -v ON_ERROR_STOP=1)
+
+        "${PSQL[@]}" -c "CREATE TABLE IF NOT EXISTS schema_migrations (
+            filename   TEXT PRIMARY KEY,
+            applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );"
+
+        apply() {
+          local file="$1" name
+          name="$(basename "$file")"
+          if [ "$("${PSQL[@]}" -tAc "SELECT 1 FROM schema_migrations WHERE filename = '$name'")" = "1" ]; then
+            echo "⏭  $name (đã chạy trước đó)"
+            return
+          fi
+          echo "▶  $name"
+          # -1: file + lệnh ghi lại nằm chung 1 transaction
+          "${PSQL[@]}" -1 -f "$file" \
+            -c "INSERT INTO schema_migrations (filename) VALUES ('$name')"
+        }
+
+        shopt -s nullglob
+        files=("$MIGRATIONS_DIR"/*.sql)
+        if [ ${#files[@]} -eq 0 ]; then
+          echo "::error::Không tìm thấy file migration nào trong $MIGRATIONS_DIR"
+          exit 1
+        fi
+
+        # sort -V: V2 đứng trước V10
+        while IFS= read -r f; do
+          apply "$f"
+        done < <(printf '%s\n' "${files[@]}" | sort -V)
+
+        if [ "$APPLY_SEED" = "true" ] && [ -f "$SEED_FILE" ]; then
+          apply "$SEED_FILE"
+        fi
+
+        echo "✅ Migration xong"

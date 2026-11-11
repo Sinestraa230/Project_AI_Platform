@@ -1,0 +1,110 @@
+# =====================================================================
+# Action dùng chung: kiểm tra một bản app đang chạy có hoạt động đầu-cuối không.
+#   1. Chờ GET /health trả {"status":"ok"} (model đã nạp xong)
+#   2. (tuỳ chọn) GET /  trả trang React          -> FE được phục vụ cùng BE
+#   3. (tuỳ chọn) POST /api/predict 1 ảnh mẫu      -> FE/BE/AI nối với nhau
+#      rồi GET /api/history thấy đúng bản ghi đó  -> BE ghi/đọc được DB
+#      rồi DELETE bản ghi để dọn dẹp
+#
+# Dùng ở: integration.yml (chạy local trong runner) và deploy.yml (chạy trên Render).
+# =====================================================================
+name: Smoke test API
+description: Kiểm tra /health, trang frontend và luồng predict -> history
+
+inputs:
+  base-url:
+    description: Địa chỉ app, VD http://localhost:8000 hoặc https://xxx.onrender.com
+    required: true
+  wait-seconds:
+    description: Chờ tối đa bao lâu để /health sẵn sàng
+    default: "600"
+  check-frontend:
+    description: '"true" để kiểm tra GET / trả trang React'
+    default: "true"
+  check-predict:
+    description: '"true" để thử predict + history (tạo rồi xoá 1 bản ghi)'
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Smoke test
+      shell: bash
+      env:
+        BASE_URL: ${{ inputs.base-url }}
+        WAIT_SECONDS: ${{ inputs.wait-seconds }}
+        CHECK_FRONTEND: ${{ inputs.check-frontend }}
+        CHECK_PREDICT: ${{ inputs.check-predict }}
+      run: |
+        set -euo pipefail
+        BASE_URL="${BASE_URL%/}"
+        json() { python3 -c "import sys, json; d = json.load(sys.stdin); print($1)"; }
+
+        # ---- 1. /health ------------------------------------------------
+        echo "⏳ Chờ $BASE_URL/health (tối đa ${WAIT_SECONDS}s)..."
+        deadline=$(( $(date +%s) + WAIT_SECONDS ))
+        until body=$(curl -fsS --max-time 30 "$BASE_URL/health" 2>/dev/null) \
+              && [ "$(echo "$body" | json 'd.get("status")')" = "ok" ]; do
+          if [ "$(date +%s)" -ge "$deadline" ]; then
+            echo "::error::$BASE_URL/health không trả status=ok sau ${WAIT_SECONDS}s"
+            exit 1
+          fi
+          sleep 10
+        done
+        echo "✅ /health: $body"
+        echo "$body" > "$RUNNER_TEMP/health.json"
+
+        # ---- 2. Frontend -----------------------------------------------
+        if [ "$CHECK_FRONTEND" = "true" ]; then
+          html=$(curl -fsS --max-time 30 "$BASE_URL/")
+          if echo "$html" | grep -q 'id="root"'; then
+            echo "✅ GET / trả trang React"
+          else
+            echo "::error::GET / không trả trang React (backend chưa phục vụ file build của frontend?)"
+            exit 1
+          fi
+        fi
+
+        # ---- 3. Predict -> History -------------------------------------
+        if [ "$CHECK_PREDICT" = "true" ]; then
+          img="$RUNNER_TEMP/leaf.png"
+          # Tạo ảnh PNG 64x64 màu xanh lá chỉ bằng thư viện chuẩn Python
+          python3 - "$img" <<'PY'
+        import struct, sys, zlib
+        w = h = 64
+        raw = b"".join(b"\x00" + bytes((60, 150, 60)) * w for _ in range(h))
+        def chunk(t, d):
+            return struct.pack(">I", len(d)) + t + d + struct.pack(">I", zlib.crc32(t + d) & 0xFFFFFFFF)
+        png = (b"\x89PNG\r\n\x1a\n"
+               + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
+               + chunk(b"IDAT", zlib.compress(raw))
+               + chunk(b"IEND", b""))
+        open(sys.argv[1], "wb").write(png)
+        PY
+
+          pred=$(curl -fsS --max-time 120 -F "file=@$img;type=image/png" "$BASE_URL/api/predict")
+          echo "✅ POST /api/predict: $(echo "$pred" | json 'd["class_name"], d["confidence_score"], d["model_version"]')"
+
+          rec_id=$(echo "$pred" | json 'd.get("id")')
+          if [ "$rec_id" = "None" ]; then
+            echo "::error::Predict không trả id -> kết quả chưa được lưu vào DB (SAVE_TO_DB?)"
+            exit 1
+          fi
+
+          hist=$(curl -fsS --max-time 30 "$BASE_URL/api/history?limit=5")
+          if echo "$hist" | python3 -c "import sys, json; ids = [i['id'] for i in json.load(sys.stdin)['items']]; sys.exit(0 if $rec_id in ids else 1)"; then
+            echo "✅ GET /api/history có bản ghi id=$rec_id"
+          else
+            echo "::error::Không thấy bản ghi id=$rec_id trong /api/history"
+            exit 1
+          fi
+
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE "$BASE_URL/api/history/$rec_id")
+          if [ "$code" = "204" ]; then
+            echo "🧹 Đã xoá bản ghi test id=$rec_id"
+          else
+            echo "::warning::Không xoá được bản ghi test id=$rec_id (HTTP $code)"
+          fi
+        fi
+
+        echo "🎉 Smoke test passed"

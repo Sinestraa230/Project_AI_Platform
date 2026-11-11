@@ -1,0 +1,71 @@
+# =====================================================================
+# Chạy toàn bộ hệ thống trên máy cá nhân (app FE+BE + PostgreSQL):
+#   1. copy .env.example -> .env ở thư mục gốc, điền POSTGRES_PASSWORD, HF_TOKEN
+#   2. docker compose up --build
+#   3. mở http://localhost:8000
+#
+# Xoá sạch DB để init lại từ đầu:  docker compose down -v
+# =====================================================================
+name: plant-disease
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Hãy đặt POSTGRES_PASSWORD trong file .env}
+      POSTGRES_DB: ${POSTGRES_DB:-pestdb}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Toàn bộ thư mục database/ có sẵn trong container tại /database
+      - ./database:/database:ro
+      # Chỉ init.sql được Postgres tự chạy (1 lần, khi volume còn trống).
+      # init.sql phải gọi lần lượt:
+      #   \i /database/migrations/V1__....sql
+      #   \i /database/migrations/V2__....sql  ...
+      #   \i /database/seed_data.sql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    ports:
+      # Chỉ mở cho máy mình (để xem DB bằng DBeaver/pgAdmin)
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-pestdb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: plant-disease-app:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: development
+      PORT: "8000"
+      # Trong compose gọi DB bằng tên service "db", không dùng localhost
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-pestdb}
+      HF_TOKEN: ${HF_TOKEN:-}
+      HF_REPO_ID: ${HF_REPO_ID:-NamHai0510/plant-disease-model}
+      HF_REVISION: ${HF_REVISION:-}
+      AUTO_DOWNLOAD_MODEL: "true"
+      SAVE_TO_DB: "true"
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      # Giữ model đã tải giữa các lần khởi động, khỏi tải lại từ HF
+      - model-cache:/app/ai_artifacts
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+volumes:
+  pgdata:
+  model-cache:

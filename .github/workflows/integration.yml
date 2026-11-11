@@ -1,0 +1,193 @@
+# =====================================================================
+# TẦNG 2 — INTEGRATION: kiểm tra SỰ LIÊN KẾT giữa các vai trò
+#
+# Chạy khi:
+#   - mở/cập nhật Pull Request vào main (song song với CI, để xem trước)
+#   - CI trên main PASS (tự nối tiếp sau CI) -> nếu pass thì CD mới deploy
+#   - chạy tay ở tab Actions
+#
+# 2 job:
+#   Backend ↔ Database   : backend chạy thật trên Postgres đã áp migration của DBA,
+#                          predict -> lưu DB -> đọc history; phát hiện backend tự tạo
+#                          bảng không có trong migration (lệch schema giữa BE và DBA)
+#   Docker ↔ FE + BE + DB: docker compose up toàn hệ thống, kiểm tra đầu-cuối
+#
+# Giai đoạn đầu KHÔNG đặt các job này là required check (tránh chặn merge khi các
+# vai trò chưa nối xong). Khi đã xanh ổn định -> thêm vào required checks.
+# =====================================================================
+name: Integration
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: integration-${{ github.event.workflow_run.head_sha || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Commit cần kiểm tra: commit đã qua CI (workflow_run) hoặc commit hiện tại
+  CHECK_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  # -------------------------------------------------------------------
+  backend-database:
+    name: Tích hợp · Backend ↔ Database
+    # Nối tiếp CI: chỉ chạy khi CI pass
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: app_db
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U test -d app_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/app_db
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_REPO_ID: ${{ vars.HF_REPO_ID || 'NamHai0510/plant-disease-model' }}
+      HF_REVISION: ${{ vars.HF_REVISION }}
+      AUTO_DOWNLOAD_MODEL: "false"
+      SAVE_TO_DB: "true"
+      APP_ENV: ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHECK_SHA }}
+
+      - name: Cài Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+
+      - name: Cài thư viện backend
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: "[BE] Có driver PostgreSQL trong requirements"
+        run: |
+          python -c "import psycopg2" 2>/dev/null || {
+            echo "::error::backend/requirements.txt thiếu psycopg2-binary -> backend không kết nối được PostgreSQL"
+            exit 1
+          }
+
+      - name: "[DBA] Áp migration + seed"
+        uses: ./.github/actions/db-migrate
+        with:
+          database-url: ${{ env.DATABASE_URL }}
+          apply-seed: "true"
+
+      - name: Ghi lại các bảng do migration tạo
+        run: |
+          psql "$DATABASE_URL" -tAc \
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'public'" \
+            | sort > "$RUNNER_TEMP/tables_before.txt"
+          echo "Bảng từ migration:"; cat "$RUNNER_TEMP/tables_before.txt"
+
+      - name: "[AI] Tải model từ Hugging Face"
+        working-directory: backend
+        run: |
+          [ -n "$HF_TOKEN" ] || { echo "::error::Thiếu secret HF_TOKEN"; exit 1; }
+          python scripts/download_model.py
+
+      - name: Khởi động backend trên PostgreSQL
+        working-directory: backend
+        run: |
+          nohup uvicorn app.main:app --host 127.0.0.1 --port 8000 > "$RUNNER_TEMP/backend.log" 2>&1 &
+
+      - name: Predict -> lưu DB -> đọc history
+        uses: ./.github/actions/smoke-api
+        with:
+          base-url: http://127.0.0.1:8000
+          wait-seconds: "300"
+          check-frontend: "false"   # FE được phục vụ cùng BE chỉ khi chạy bằng Docker (job sau)
+          check-predict: "true"
+
+      - name: "[BE ↔ DBA] Backend không được tự tạo bảng ngoài migration"
+        run: |
+          psql "$DATABASE_URL" -tAc \
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'public'" \
+            | sort > "$RUNNER_TEMP/tables_after.txt"
+          extra=$(comm -13 "$RUNNER_TEMP/tables_before.txt" "$RUNNER_TEMP/tables_after.txt")
+          if [ -n "$extra" ]; then
+            echo "::error::Backend tự tạo bảng không có trong migration: $(echo $extra). BE và DBA cần thống nhất schema (thêm migration cho bảng này, hoặc backend dùng bảng của DBA)."
+            exit 1
+          fi
+          echo "✅ Backend chỉ dùng các bảng do migration tạo"
+
+      - name: Log backend
+        if: always()
+        run: tail -n 200 "$RUNNER_TEMP/backend.log" || true
+
+  # -------------------------------------------------------------------
+  docker-e2e:
+    name: Tích hợp · Docker (FE + BE + DB)
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      POSTGRES_PASSWORD: ci-integration
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_REPO_ID: ${{ vars.HF_REPO_ID || 'NamHai0510/plant-disease-model' }}
+      HF_REVISION: ${{ vars.HF_REVISION }}
+      APP_PORT: "8000"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHECK_SHA }}
+
+      - name: "[Docker] Có đủ Dockerfile + docker-compose.yml"
+        run: |
+          missing=""
+          [ -f Dockerfile ]         || missing="$missing Dockerfile"
+          [ -f docker-compose.yml ] || missing="$missing docker-compose.yml"
+          if [ -n "$missing" ]; then
+            echo "::error::Chưa có:$missing ở thư mục gốc -> chưa thể chạy tích hợp bằng Docker"
+            exit 1
+          fi
+
+      - name: docker compose up (build + chờ healthy)
+        run: docker compose up -d --build --wait --wait-timeout 600
+
+      - name: Kiểm tra đầu-cuối qua Docker
+        uses: ./.github/actions/smoke-api
+        with:
+          base-url: http://localhost:8000
+          wait-seconds: "120"
+          check-frontend: "true"
+          check-predict: "true"
+
+      - name: "[DBA ↔ Docker] DB trong compose được khởi tạo bằng migration"
+        run: |
+          docker compose exec -T db sh -c \
+            'psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-pestdb}" -c "\dt"'
+
+      - name: Log khi lỗi
+        if: failure()
+        run: docker compose logs --no-color --tail 200
+
+      - name: Dọn dẹp
+        if: always()
+        run: docker compose down -v
