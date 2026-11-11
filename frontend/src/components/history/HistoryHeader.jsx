@@ -20,7 +20,7 @@ function HistoryHeader() {
 
       <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
         <ClipboardList size={16} className="text-green-600" />
-        <span>Dữ liệu hiện tại chỉ là dữ liệu minh họa giao diện.</span>
+        <span>Kết quả được lưu tự động sau mỗi lần chẩn đoán.</span>
       </div>
     </section>
   )

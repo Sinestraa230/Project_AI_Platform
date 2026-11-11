@@ -36,11 +36,17 @@ function HistoryTable({ records, onViewDetail }) {
             {records.map((record) => (
               <tr key={record.id} className="transition hover:bg-gray-50">
                 <td className="px-6 py-4">
-                  <img
-                    src={record.image}
-                    alt="Ảnh cây trồng"
-                    className="h-14 w-14 rounded-xl object-cover"
-                  />
+                  {record.image ? (
+                    <img
+                      src={record.image}
+                      alt="Ảnh cây trồng"
+                      className="h-14 w-14 rounded-xl object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-50">
+                      <Leaf size={22} className="text-green-300" />
+                    </div>
+                  )}
                 </td>
 
                 <td className="px-6 py-4">
@@ -55,6 +61,9 @@ function HistoryTable({ records, onViewDetail }) {
                       {record.disease}
                     </span>
                   </div>
+                  {record.plant && (
+                    <p className="mt-0.5 text-xs text-gray-500">{record.plant}</p>
+                  )}
 
                   <span
                     className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-medium ${

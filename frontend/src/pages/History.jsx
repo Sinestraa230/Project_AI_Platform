@@ -1,55 +1,40 @@
 
-import { useMemo, useState } from 'react'
-import { X, Activity } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { X, Activity, Leaf, LoaderCircle, Trash2 } from 'lucide-react'
 
 import HistoryHeader from '../components/history/HistoryHeader'
 import HistoryFilters from '../components/history/HistoryFilters'
 import HistoryTable from '../components/history/HistoryTable'
-
-// Dữ liệu minh họa
-const mockRecords = [
-  {
-    id: 1,
-    disease: 'Bệnh đốm lá',
-    status: 'disease',
-    confidence: 96.8,
-    date: '05/11/2026 - 08:30',
-    image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=200',
-  },
-  {
-    id: 2,
-    disease: 'Cây khỏe mạnh',
-    status: 'healthy',
-    confidence: 98.2,
-    date: '04/11/2026 - 15:20',
-    image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=200',
-  },
-  {
-    id: 3,
-    disease: 'Bệnh cháy lá',
-    status: 'disease',
-    confidence: 91.5,
-    date: '03/11/2026 - 10:15',
-    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200',
-  },
-  {
-    id: 4,
-    disease: 'Cây khỏe mạnh',
-    status: 'healthy',
-    confidence: 97.4,
-    date: '02/11/2026 - 09:45',
-    image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=200',
-  },
-]
+import { deleteHistory, getHistory } from '../services/historyService'
 
 function History() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedRecord, setSelectedRecord] = useState(null)
+  const [records, setRecords] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    getHistory()
+      .then(({ records }) => setRecords(records))
+      .catch((err) => setError(err.message))
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteHistory(id)
+      setRecords((prev) => prev.filter((r) => r.id !== id))
+      setSelectedRecord(null)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   // Tìm kiếm và lọc dữ liệu
   const filteredRecords = useMemo(() => {
-    return mockRecords.filter((record) => {
+    return records.filter((record) => {
       const matchesSearch = record.disease
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
@@ -59,7 +44,7 @@ function History() {
 
       return matchesSearch && matchesStatus
     })
-  }, [searchTerm, statusFilter])
+  }, [records, searchTerm, statusFilter])
 
   return (
     <div className="space-y-8">
@@ -75,7 +60,7 @@ function History() {
             <div>
               <p className="text-sm text-gray-500">Tổng lượt chẩn đoán</p>
               <p className="text-2xl font-bold text-gray-900">
-                {mockRecords.length}
+                {records.length}
               </p>
             </div>
           </div>
@@ -84,14 +69,14 @@ function History() {
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <p className="text-sm text-gray-500">Phát hiện bệnh</p>
           <p className="mt-2 text-2xl font-bold text-orange-600">
-            {mockRecords.filter((item) => item.status === 'disease').length}
+            {records.filter((item) => item.status === 'disease').length}
           </p>
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <p className="text-sm text-gray-500">Cây khỏe mạnh</p>
           <p className="mt-2 text-2xl font-bold text-green-600">
-            {mockRecords.filter((item) => item.status === 'healthy').length}
+            {records.filter((item) => item.status === 'healthy').length}
           </p>
         </div>
       </div>
@@ -115,10 +100,21 @@ function History() {
           </div>
         </div>
 
-        <HistoryTable
-          records={filteredRecords}
-          onViewDetail={setSelectedRecord}
-        />
+        {error && (
+          <p className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</p>
+        )}
+
+        {isLoading ? (
+          <div className="flex items-center justify-center gap-2 rounded-2xl border border-gray-100 bg-white p-12 text-sm text-gray-500 shadow-sm">
+            <LoaderCircle size={18} className="animate-spin" />
+            Đang tải lịch sử...
+          </div>
+        ) : (
+          <HistoryTable
+            records={filteredRecords}
+            onViewDetail={setSelectedRecord}
+          />
+        )}
       </div>
 
       {/* Hộp thoại xem chi tiết */}
@@ -145,11 +141,17 @@ function History() {
               </button>
             </div>
 
-            <img
-              src={selectedRecord.image}
-              alt="Ảnh cây trồng"
-              className="mt-5 h-48 w-full rounded-xl object-cover"
-            />
+            {selectedRecord.image ? (
+              <img
+                src={selectedRecord.image}
+                alt="Ảnh cây trồng"
+                className="mt-5 h-48 w-full rounded-xl object-cover"
+              />
+            ) : (
+              <div className="mt-5 flex h-32 w-full items-center justify-center rounded-xl bg-green-50">
+                <Leaf size={36} className="text-green-300" />
+              </div>
+            )}
 
             <div className="mt-5 space-y-3 text-sm">
               <p>
@@ -158,7 +160,12 @@ function History() {
               </p>
 
               <p>
-                <span className="text-gray-500">Độ tin cậy mô phỏng: </span>
+                <span className="text-gray-500">Cây: </span>
+                <strong>{selectedRecord.plant}</strong>
+              </p>
+
+              <p>
+                <span className="text-gray-500">Độ tin cậy: </span>
                 <strong>{selectedRecord.confidence}%</strong>
               </p>
 
@@ -168,13 +175,19 @@ function History() {
               </p>
             </div>
 
-            <p className="mt-5 rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-800">
-              Đây là dữ liệu minh họa giao diện, chưa phải kết quả từ mô hình AI thực tế.
-            </p>
+            <p className="mt-5 text-xs text-gray-400">Model: {selectedRecord.modelVersion}</p>
+
+            <button
+              onClick={() => handleDelete(selectedRecord.id)}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 py-3 font-semibold text-red-600 hover:bg-red-50"
+            >
+              <Trash2 size={17} />
+              Xóa khỏi lịch sử
+            </button>
 
             <button
               onClick={() => setSelectedRecord(null)}
-              className="mt-5 w-full rounded-xl bg-green-700 py-3 font-semibold text-white hover:bg-green-800"
+              className="mt-3 w-full rounded-xl bg-green-700 py-3 font-semibold text-white hover:bg-green-800"
             >
               Đóng
             </button>
