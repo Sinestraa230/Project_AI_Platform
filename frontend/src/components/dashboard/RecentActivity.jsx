@@ -1,38 +1,9 @@
 
-import { ArrowRight, Clock } from 'lucide-react'
+import { ArrowRight, Clock, Leaf } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const activities = [
-  {
-    id: 1,
-    plant: 'Cà chua',
-    disease: 'Bệnh đốm lá',
-    confidence: '96.8%',
-    time: '08:30 - 05/11/2026',
-    status: 'Hoàn thành',
-    image: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=100',
-  },
-  {
-    id: 2,
-    plant: 'Lúa',
-    disease: 'Bệnh đạo ôn',
-    confidence: '93.2%',
-    time: '09:15 - 04/11/2026',
-    status: 'Hoàn thành',
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=100',
-  },
-  {
-    id: 3,
-    plant: 'Khoai tây',
-    disease: 'Bệnh mốc sương',
-    confidence: '89.5%',
-    time: '14:20 - 03/11/2026',
-    status: 'Hoàn thành',
-    image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=100',
-  },
-]
-
-function RecentActivity() {
+// records: các lần chẩn đoán gần nhất từ getStats() (cùng dạng với trang Lịch sử)
+function RecentActivity({ records, isLoading }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 p-5">
@@ -67,15 +38,29 @@ function RecentActivity() {
           </thead>
 
           <tbody className="divide-y divide-gray-100">
-            {activities.map((item) => (
+            {records.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-5 py-10 text-center text-sm text-gray-500">
+                  {isLoading ? 'Đang tải...' : 'Chưa có lượt chẩn đoán nào.'}
+                </td>
+              </tr>
+            )}
+
+            {records.map((item) => (
               <tr key={item.id} className="transition hover:bg-gray-50">
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={item.image}
-                      alt={item.plant}
-                      className="h-11 w-11 rounded-lg object-cover"
-                    />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.plant}
+                        className="h-11 w-11 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-green-50">
+                        <Leaf size={18} className="text-green-300" />
+                      </div>
+                    )}
                     <span className="text-sm font-semibold text-gray-800">
                       {item.plant}
                     </span>
@@ -88,20 +73,26 @@ function RecentActivity() {
 
                 <td className="px-5 py-4">
                   <span className="text-sm font-semibold text-green-700">
-                    {item.confidence}
+                    {item.confidence}%
                   </span>
                 </td>
 
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <Clock size={15} />
-                    {item.time}
+                    {item.date}
                   </div>
                 </td>
 
                 <td className="px-5 py-4">
-                  <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
-                    {item.status}
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      item.status === 'disease'
+                        ? 'bg-orange-50 text-orange-700'
+                        : 'bg-green-50 text-green-700'
+                    }`}
+                  >
+                    {item.status === 'disease' ? 'Phát hiện bệnh' : 'Cây khỏe mạnh'}
                   </span>
                 </td>
               </tr>

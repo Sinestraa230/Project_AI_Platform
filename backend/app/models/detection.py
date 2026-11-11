@@ -1,4 +1,4 @@
-"""Bảng lưu lịch sử dự đoán (SAVE_TO_DB=true) — trang History đọc qua GET /api/history."""
+"""Bảng lưu lịch sử chẩn đoán — POST /api/detections ghi, GET /api/history đọc."""
 from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String
@@ -16,6 +16,8 @@ class DetectionRecord(Base):
     is_healthy = Column(Boolean, default=False)
     confidence_score = Column(Float, nullable=False)
     model_version = Column(String(50), default="")
+    # Tên file ảnh trong UPLOAD_DIR (None: không lưu ảnh / bản ghi cũ)
+    image_path = Column(String(100), nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(timezone.utc), nullable=False
     )

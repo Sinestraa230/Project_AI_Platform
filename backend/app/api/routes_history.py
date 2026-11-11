@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models.detection import DetectionRecord
 from ..schemas.predict import HistoryItem, HistoryPage
-from ..services.ai.predictor import _split
+from ..services.model_meta import split_class_name as _split
+from ..services.image_store import delete_image, url_for
 
 router = APIRouter(prefix="/api", tags=["history"])
 
@@ -27,6 +28,7 @@ def _to_item(r: DetectionRecord) -> HistoryItem:
         confidence_score=r.confidence_score,
         model_version=r.model_version or "",
         created_at=created.isoformat(timespec="seconds"),
+        image_url=url_for(r.image_path),
     )
 
 
@@ -47,5 +49,7 @@ def delete_history(record_id: int, db: Session = Depends(get_db)) -> None:
     record = db.get(DetectionRecord, record_id)
     if record is None:
         raise HTTPException(404, "Không tìm thấy bản ghi.")
+    image_name = record.image_path
     db.delete(record)
     db.commit()
+    delete_image(image_name)  # xoá bản ghi xong mới xoá file ảnh đi kèm

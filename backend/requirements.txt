@@ -1,16 +1,17 @@
+# -*- coding: utf-8 -*-
 # ============================================================
-# Backend requirements — Project AI Platform (gộp AI, TF/Keras)
+# Backend requirements — Project AI Platform
+# Model AI chạy trên trình duyệt (frontend) -> backend KHÔNG cần TensorFlow.
+# Vercel cài file này khi deploy (Python 3.12).
 # ============================================================
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
-# TF + Keras ghim theo bộ đã kiểm tra load được model train trên Kaggle.
-# Keras ở backend phải >= keras_version lúc train (xem metadata trong file .keras).
-tensorflow==2.16.1
-keras==3.15.1
-numpy==1.26.4
 pillow==10.3.0
 python-multipart==0.0.9
 pydantic==2.7.4
+# Bắt buộc cho EmailStr trong schemas/auth.py (thiếu -> app không khởi động được)
+email-validator>=2.1.0
 SQLAlchemy==2.0.30
-huggingface_hub>=0.23.0
 python-dotenv>=1.0.0
+# Driver Postgres (Neon) — dùng khi DATABASE_URL là postgresql://...
+psycopg2-binary>=2.9.9

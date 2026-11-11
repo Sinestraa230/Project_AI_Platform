@@ -25,17 +25,30 @@ function DiseaseGrid({ diseases, onViewDetail }) {
           key={disease.id}
           className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
         >
-          <div className="relative h-48 overflow-hidden bg-gray-100">
-            <img
-              src={disease.image}
-              alt={disease.name}
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-            />
+          {disease.image ? (
+            <div className="relative h-48 overflow-hidden bg-gray-100">
+              <img
+                src={disease.image}
+                alt={disease.name}
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              />
 
-            <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-green-700 backdrop-blur">
-              {disease.categoryName}
-            </span>
-          </div>
+              <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-green-700 backdrop-blur">
+                {disease.categoryName}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2 bg-green-50 px-5 py-4">
+              <span className="flex items-center gap-2 text-sm font-medium text-green-800">
+                <Leaf size={16} />
+                {disease.plant}
+              </span>
+
+              <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-green-700">
+                {disease.categoryName}
+              </span>
+            </div>
+          )}
 
           <div className="p-5">
             <h3 className="text-lg font-bold text-gray-900">

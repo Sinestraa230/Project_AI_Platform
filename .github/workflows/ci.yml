@@ -3,8 +3,8 @@
 #
 # Chạy cho: mọi Pull Request vào main + mọi lần push lên main.
 # 4 job song song, job nào chỉ kiểm tra phần của vai trò đó:
-#   Backend  · pytest          — code backend + model (DB SQLite tạm, không cần Postgres)
-#   Frontend · lint/test/build — code frontend
+#   Backend  · pytest          — code backend (DB SQLite tạm; backend không chạy model)
+#   Frontend · lint/test/build — code frontend (không tải model 43MB khi build)
 #   Database · migrations      — migration + seed chạy được trên Postgres trống
 #   Docker   · build image     — Dockerfile build được (CHƯA có Dockerfile thì bỏ qua, không chặn)
 #
@@ -38,12 +38,7 @@ jobs:
   backend:
     name: Backend · pytest
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      HF_REPO_ID: ${{ vars.HF_REPO_ID || 'NamHai0510/plant-disease-model' }}
-      HF_REVISION: ${{ vars.HF_REVISION }}
-      AUTO_DOWNLOAD_MODEL: "false"
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: backend
@@ -54,7 +49,7 @@ jobs:
       - name: Cài Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12"   # giống Python mặc định của Vercel
           cache: pip
           cache-dependency-path: backend/requirements*.txt
 
@@ -63,14 +58,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
-      - name: Tải model từ Hugging Face
-        if: env.HF_TOKEN != ''
-        run: python scripts/download_model.py
-
-      - name: Cảnh báo thiếu HF_TOKEN
-        if: env.HF_TOKEN == ''
-        run: echo "::warning::Chưa có secret HF_TOKEN nên không tải được model; các test cần model sẽ bị skip."
-
+      # Model chạy trên trình duyệt -> backend chỉ đọc metadata trong app/data/model/,
+      # không cần tải model. conftest.py tự dùng SQLite + thư mục ảnh tạm.
       - name: Chạy pytest
         run: python -m pytest -q -rs
 
@@ -104,6 +93,10 @@ jobs:
         run: npm run test --if-present
 
       - name: Build
+        # prebuild (scripts/prepare-model.mjs) vẫn chạy: kiểm tra metadata model +
+        # chép runtime LiteRT.js; chỉ bỏ bước tải file .tflite 43MB
+        env:
+          SKIP_MODEL_DOWNLOAD: "1"
         run: npm run build
 
   # -------------------------------------------------------------------

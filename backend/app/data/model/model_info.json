@@ -1,0 +1,19 @@
+{
+  "version": "efficientnetb3-20261109-1859",
+  "trained_at": "2026-11-09T18:59:42+00:00",
+  "architecture": "EfficientNetB3",
+  "dataset": "vipoooool/new-plant-diseases-dataset",
+  "num_classes": 38,
+  "img_size": 300,
+  "preprocess": "resize bilinear -> RGB -> /255.0",
+  "tensorflow_version": "2.21.0",
+  "keras_version": "3.13.2",
+  "epochs": {
+    "head": 5,
+    "fine_tune": 8
+  },
+  "eval_split": "valid",
+  "eval_accuracy": 0.9536,
+  "eval_loss": 0.1434,
+  "eval_macro_f1": 0.9527
+}

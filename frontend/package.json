@@ -4,12 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/prepare-model.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/prepare-model.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@litertjs/core": "2.6.0",
     "lucide-react": "^1.68.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -27,5 +30,8 @@
     "globals": "^17.13.0",
     "tailwindcss": "^4.3.4",
     "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }

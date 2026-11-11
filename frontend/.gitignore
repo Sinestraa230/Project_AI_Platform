@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Biến môi trường (chỉ commit file mẫu)
+.env
+.env.*
+!.env.example
+
+# Sinh ra bởi scripts/prepare-model.mjs (model + runtime LiteRT.js, file nặng)
+public/model/
+public/litert/

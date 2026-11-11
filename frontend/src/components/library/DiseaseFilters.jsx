@@ -6,6 +6,7 @@ function DiseaseFilters({
   onSearchChange,
   categoryFilter,
   onCategoryChange,
+  groups, // [{ code, name }] từ getDiseases()
 }) {
   return (
     <section className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:flex-row md:items-center">
@@ -20,7 +21,7 @@ function DiseaseFilters({
           type="text"
           value={searchTerm}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Tìm kiếm tên bệnh..."
+          placeholder="Tìm theo tên bệnh hoặc tên cây..."
           className="w-full rounded-xl border border-gray-200 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-100"
         />
       </div>
@@ -35,10 +36,11 @@ function DiseaseFilters({
           className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-green-500"
         >
           <option value="all">Tất cả nhóm bệnh</option>
-          <option value="fungal">Bệnh do nấm</option>
-          <option value="bacterial">Bệnh do vi khuẩn</option>
-          <option value="viral">Bệnh do virus</option>
-          <option value="healthy">Cây khỏe mạnh</option>
+          {groups.map((group) => (
+            <option key={group.code} value={group.code}>
+              {group.name}
+            </option>
+          ))}
         </select>
       </div>
     </section>
