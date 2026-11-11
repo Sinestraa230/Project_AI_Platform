@@ -1,8 +1,8 @@
-import { request } from './api'
+import { assetUrl, request } from './api'
 import { toPercent } from './diagnosisService'
 
-// Đổi bản ghi backend -> dạng mà các component History đang dùng
-function toRecord(item) {
+// Đổi bản ghi backend -> dạng mà các component History / Dashboard đang dùng
+export function toRecord(item) {
   return {
     id: item.id,
     disease: item.is_healthy ? 'Cây khỏe mạnh' : item.disease_name,
@@ -14,7 +14,7 @@ function toRecord(item) {
       day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
     }),
     modelVersion: item.model_version,
-    image: null, // backend chưa lưu ảnh
+    image: assetUrl(item.image_url), // null với bản ghi cũ chưa lưu ảnh
   }
 }
 

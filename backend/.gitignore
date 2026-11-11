@@ -1,12 +1,19 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
+.pytest_cache/
 .venv/
 venv/
 env/
 
 # Env
 .env
+.env.*
+!.env.example
+
+# Ảnh người dùng tải lên + DB local
+uploads/
+*.db
 
 # AI artifacts (không commit model)
 ai_artifacts/*

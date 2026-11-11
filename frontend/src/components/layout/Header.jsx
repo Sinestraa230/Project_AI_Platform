@@ -1,12 +1,44 @@
 
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Search,
   Bell,
   Sun,
   ChevronDown,
+  LogOut,
 } from 'lucide-react'
 
+import { useAuth } from '../../context/AuthContext'
+
 function Header() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  const name = user?.full_name || user?.email || ''
+  const initial = name.trim().charAt(0).toUpperCase() || '?'
+
+  // Bấm ra ngoài hoặc nhấn Esc -> đóng menu
+  useEffect(() => {
+    if (!open) return undefined
+    const onClick = (e) => !menuRef.current?.contains(e.target) && setOpen(false)
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const handleLogout = async () => {
+    setOpen(false)
+    await logout()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <header className="flex h-[85px] shrink-0 items-center justify-between border-b border-gray-200 bg-white px-8">
 
@@ -46,22 +78,49 @@ function Header() {
         <div className="h-8 w-px bg-gray-200" />
 
         {/* User profile */}
-        <button className="flex items-center gap-3">
+        <div ref={menuRef} className="relative">
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-haspopup="menu"
+            aria-expanded={open}
+            className="flex items-center gap-3"
+          >
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-800 text-sm font-semibold text-white">
-            T
-          </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-800 text-sm font-semibold text-white">
+              {initial}
+            </div>
 
-          <span className="text-sm font-semibold text-gray-800">
-            Thành Đức
-          </span>
+            <span className="max-w-40 truncate text-sm font-semibold text-gray-800">
+              {name}
+            </span>
 
-          <ChevronDown
-            size={17}
-            className="text-gray-400"
-          />
+            <ChevronDown
+              size={17}
+              className={`text-gray-400 transition ${open ? 'rotate-180' : ''}`}
+            />
 
-        </button>
+          </button>
+
+          {open && (
+            <div
+              role="menu"
+              className="absolute right-0 z-20 mt-3 w-60 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg"
+            >
+              <div className="border-b border-gray-100 px-4 py-3">
+                <p className="truncate text-sm font-semibold text-gray-900">{user?.full_name || 'Người dùng'}</p>
+                <p className="truncate text-xs text-gray-500">{user?.email}</p>
+              </div>
+              <button
+                role="menuitem"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2 px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50"
+              >
+                <LogOut size={17} />
+                Đăng xuất
+              </button>
+            </div>
+          )}
+        </div>
 
       </div>
 

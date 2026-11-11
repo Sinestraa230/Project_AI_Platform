@@ -1,6 +1,6 @@
 import { CheckCircle2, AlertTriangle, Leaf, HelpCircle } from 'lucide-react'
 
-// result: dữ liệu từ diagnoseImage() (POST /api/predict)
+// result: dữ liệu từ diagnoseImage() — model chạy trên trình duyệt, lưu qua POST /api/detections
 function DiagnosisResult({ result }) {
   if (!result) {
     return (
@@ -30,6 +30,7 @@ function DiagnosisResult({ result }) {
     confidencePercent,
     topK,
     model_version: modelVersion,
+    saveError,
   } = result
 
   // 3 trạng thái: chưa chắc chắn / khỏe mạnh / có bệnh
@@ -50,6 +51,12 @@ function DiagnosisResult({ result }) {
           Kết quả chẩn đoán
         </h2>
       </div>
+
+      {saveError && (
+        <p role="status" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Chưa lưu được vào Lịch sử: {saveError}
+        </p>
+      )}
 
       <div className={`mt-6 rounded-xl p-5 ${tone.box}`}>
         <div className={`flex items-center gap-2 ${tone.text}`}>

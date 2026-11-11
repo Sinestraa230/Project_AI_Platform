@@ -2,7 +2,7 @@
 from fastapi import APIRouter
 
 from ..config import CONFIDENCE_THRESHOLD
-from ..services.ai.model_loader import get_metrics, get_model_info, get_model_version
+from ..services.model_meta import get_metrics, get_model_info, get_model_version
 
 router = APIRouter(prefix="/api", tags=["model"])
 

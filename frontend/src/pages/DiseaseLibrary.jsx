@@ -1,80 +1,40 @@
 
-import { useMemo, useState } from 'react'
-import { X, Leaf } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { X, Leaf, LoaderCircle } from 'lucide-react'
 
 import LibraryHeader from '../components/library/LibraryHeader'
 import DiseaseFilters from '../components/library/DiseaseFilters'
 import DiseaseGrid from '../components/library/DiseaseGrid'
-
-// Dữ liệu bệnh minh họa
-const mockDiseases = [
-  {
-    id: 1,
-    name: 'Bệnh đốm lá',
-    category: 'fungal',
-    categoryName: 'Bệnh do nấm',
-    symptoms: 'Xuất hiện các đốm nâu hoặc đen trên bề mặt lá, có thể lan rộng khi độ ẩm cao.',
-    image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=600',
-    prevention: 'Theo dõi độ ẩm, giữ vườn thông thoáng và loại bỏ lá bị bệnh.',
-  },
-  {
-    id: 2,
-    name: 'Bệnh phấn trắng',
-    category: 'fungal',
-    categoryName: 'Bệnh do nấm',
-    symptoms: 'Trên lá xuất hiện lớp bột màu trắng, khiến lá phát triển kém.',
-    image: 'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?w=600',
-    prevention: 'Tăng độ thông thoáng, tránh tưới nước lên lá vào buổi tối.',
-  },
-  {
-    id: 3,
-    name: 'Bệnh gỉ sắt',
-    category: 'fungal',
-    categoryName: 'Bệnh do nấm',
-    symptoms: 'Xuất hiện các đốm màu vàng cam hoặc nâu giống bột gỉ trên lá.',
-    image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=600',
-    prevention: 'Kiểm tra lá thường xuyên và loại bỏ phần cây bị ảnh hưởng.',
-  },
-  {
-    id: 4,
-    name: 'Bệnh héo xanh',
-    category: 'bacterial',
-    categoryName: 'Bệnh do vi khuẩn',
-    symptoms: 'Cây có biểu hiện héo rũ, dù đất vẫn có độ ẩm.',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600',
-    prevention: 'Sử dụng cây giống khỏe mạnh và chú ý vệ sinh đất trồng.',
-  },
-  {
-    id: 5,
-    name: 'Bệnh khảm lá',
-    category: 'viral',
-    categoryName: 'Bệnh do virus',
-    symptoms: 'Lá xuất hiện các mảng xanh đậm và xanh nhạt xen kẽ, đôi khi biến dạng.',
-    image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=600',
-    prevention: 'Kiểm soát côn trùng truyền bệnh và sử dụng nguồn giống sạch bệnh.',
-  },
-  {
-    id: 6,
-    name: 'Cây khỏe mạnh',
-    category: 'healthy',
-    categoryName: 'Không phát hiện bệnh',
-    symptoms: 'Lá có màu sắc tương đối đồng đều, không thấy dấu hiệu bất thường rõ rệt.',
-    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600',
-    prevention: 'Duy trì chế độ chăm sóc và theo dõi cây định kỳ.',
-  },
-]
+import { foldText, getDiseases } from '../services/libraryService'
 
 function DiseaseLibrary() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [selectedDisease, setSelectedDisease] = useState(null)
+  const [diseases, setDiseases] = useState([])
+  const [groups, setGroups] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  // Tìm kiếm và lọc bệnh
+  // Thư viện lấy từ backend: đúng các lớp mà model nhận diện được
+  useEffect(() => {
+    getDiseases()
+      .then((data) => {
+        setDiseases(data.diseases)
+        setGroups(data.groups)
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  // Tìm kiếm (không cần gõ dấu) và lọc bệnh
   const filteredDiseases = useMemo(() => {
-    return mockDiseases.filter((disease) => {
-      const matchesSearch = (
-        disease.name + ' ' + disease.symptoms
-      ).toLowerCase().includes(searchTerm.toLowerCase())
+    const needle = foldText(searchTerm.trim())
+
+    return diseases.filter((disease) => {
+      const matchesSearch = foldText(
+        `${disease.name} ${disease.plant} ${disease.englishName} ${disease.symptoms}`,
+      ).includes(needle)
 
       const matchesCategory =
         categoryFilter === 'all' ||
@@ -82,7 +42,7 @@ function DiseaseLibrary() {
 
       return matchesSearch && matchesCategory
     })
-  }, [searchTerm, categoryFilter])
+  }, [diseases, searchTerm, categoryFilter])
 
   return (
     <div className="space-y-8">
@@ -100,7 +60,7 @@ function DiseaseLibrary() {
               Tổng số mục trong thư viện
             </p>
             <p className="text-2xl font-bold text-gray-900">
-              {mockDiseases.length}
+              {isLoading ? '—' : diseases.length}
             </p>
           </div>
         </div>
@@ -111,6 +71,7 @@ function DiseaseLibrary() {
         onSearchChange={setSearchTerm}
         categoryFilter={categoryFilter}
         onCategoryChange={setCategoryFilter}
+        groups={groups}
       />
 
       <div>
@@ -123,10 +84,21 @@ function DiseaseLibrary() {
           </p>
         </div>
 
-        <DiseaseGrid
-          diseases={filteredDiseases}
-          onViewDetail={setSelectedDisease}
-        />
+        {error && (
+          <p className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</p>
+        )}
+
+        {isLoading ? (
+          <div className="flex items-center justify-center gap-2 rounded-2xl border border-gray-100 bg-white p-12 text-sm text-gray-500 shadow-sm">
+            <LoaderCircle size={18} className="animate-spin" />
+            Đang tải thư viện...
+          </div>
+        ) : (
+          <DiseaseGrid
+            diseases={filteredDiseases}
+            onViewDetail={setSelectedDisease}
+          />
+        )}
       </div>
 
       {/* Chi tiết bệnh */}
@@ -153,11 +125,13 @@ function DiseaseLibrary() {
               </button>
             </div>
 
-            <img
-              src={selectedDisease.image}
-              alt={selectedDisease.name}
-              className="mt-5 h-56 w-full rounded-xl object-cover"
-            />
+            {selectedDisease.image && (
+              <img
+                src={selectedDisease.image}
+                alt={selectedDisease.name}
+                className="mt-5 h-56 w-full rounded-xl object-cover"
+              />
+            )}
 
             <span className="mt-5 inline-block rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">
               {selectedDisease.categoryName}
@@ -166,6 +140,20 @@ function DiseaseLibrary() {
             <h3 className="mt-3 text-xl font-bold text-gray-900">
               {selectedDisease.name}
             </h3>
+
+            <div className="mt-3 space-y-1 text-sm">
+              <p>
+                <span className="text-gray-500">Cây: </span>
+                <strong>{selectedDisease.plant}</strong>
+              </p>
+
+              {selectedDisease.pathogen && (
+                <p>
+                  <span className="text-gray-500">Tác nhân: </span>
+                  <strong>{selectedDisease.pathogen}</strong>
+                </p>
+              )}
+            </div>
 
             <div className="mt-5">
               <h4 className="font-semibold text-gray-900">

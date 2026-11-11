@@ -1,3 +1,5 @@
 -r requirements.txt
 pytest==8.2.2
 httpx==0.28.1
+# Chỉ cho scripts/sync_model_meta.py (đổi phiên bản model)
+huggingface_hub>=0.23.0

@@ -1,0 +1,214 @@
+{
+  "groups": {
+    "fungal": "Bệnh do nấm",
+    "bacterial": "Bệnh do vi khuẩn",
+    "viral": "Bệnh do virus",
+    "pest": "Nhện, côn trùng gây hại",
+    "healthy": "Cây khỏe mạnh",
+    "other": "Chưa phân loại"
+  },
+  "plants": {
+    "Apple": "Táo",
+    "Blueberry": "Việt quất",
+    "Cherry_(including_sour)": "Anh đào",
+    "Corn_(maize)": "Ngô",
+    "Grape": "Nho",
+    "Orange": "Cam",
+    "Peach": "Đào",
+    "Pepper,_bell": "Ớt chuông",
+    "Potato": "Khoai tây",
+    "Raspberry": "Mâm xôi",
+    "Soybean": "Đậu tương",
+    "Squash": "Bí",
+    "Strawberry": "Dâu tây",
+    "Tomato": "Cà chua"
+  },
+  "healthy": {
+    "symptoms": "Lá có màu sắc đồng đều, không thấy đốm, mốc hay biến dạng bất thường.",
+    "prevention": "Duy trì chế độ tưới, bón phân cân đối và kiểm tra lá định kỳ để phát hiện sớm dấu hiệu bệnh."
+  },
+  "diseases": {
+    "Apple___Apple_scab": {
+      "name_vi": "Bệnh ghẻ táo",
+      "group": "fungal",
+      "pathogen": "Nấm Venturia inaequalis",
+      "symptoms": "Đốm màu ô liu đến nâu sẫm, bề mặt như nhung trên lá và quả. Lá vàng, rụng sớm; quả nứt và biến dạng.",
+      "prevention": "Thu gom lá rụng, tỉa cành cho tán thông thoáng, chọn giống kháng và phun thuốc trừ nấm đầu vụ khi thời tiết mưa ẩm."
+    },
+    "Apple___Black_rot": {
+      "name_vi": "Bệnh thối đen táo",
+      "group": "fungal",
+      "pathogen": "Nấm Botryosphaeria obtusa",
+      "symptoms": "Đốm lá có viền tím, tâm nâu (dạng \"mắt ếch\"). Quả thối nâu rồi đen, khô quắt lại; cành có vết loét.",
+      "prevention": "Cắt bỏ cành khô, cành loét và quả khô còn treo trên cây; vệ sinh vườn sau thu hoạch."
+    },
+    "Apple___Cedar_apple_rust": {
+      "name_vi": "Bệnh gỉ sắt táo",
+      "group": "fungal",
+      "pathogen": "Nấm Gymnosporangium juniperi-virginiae",
+      "symptoms": "Đốm vàng cam tươi ở mặt trên lá; mặt dưới về sau mọc các túi bào tử dạng ống nhỏ.",
+      "prevention": "Loại bỏ cây bách xù mọc gần vườn (ký chủ trung gian của nấm), chọn giống kháng và phun thuốc trừ nấm vào mùa xuân."
+    },
+    "Cherry_(including_sour)___Powdery_mildew": {
+      "name_vi": "Bệnh phấn trắng anh đào",
+      "group": "fungal",
+      "pathogen": "Nấm Podosphaera clandestina",
+      "symptoms": "Lớp phấn trắng phủ trên lá non và chồi; lá cong, xoăn và phát triển kém.",
+      "prevention": "Tỉa cành cho tán thông thoáng, tránh bón thừa đạm, dùng thuốc gốc lưu huỳnh khi bệnh mới xuất hiện."
+    },
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+      "name_vi": "Bệnh đốm lá xám ngô",
+      "group": "fungal",
+      "pathogen": "Nấm Cercospora zeae-maydis",
+      "symptoms": "Vết bệnh hẹp, hình chữ nhật, màu xám đến nâu, chạy song song và bị giới hạn bởi gân lá.",
+      "prevention": "Luân canh với cây khác họ, cày vùi tàn dư sau thu hoạch và chọn giống kháng."
+    },
+    "Corn_(maize)___Common_rust_": {
+      "name_vi": "Bệnh gỉ sắt ngô",
+      "group": "fungal",
+      "pathogen": "Nấm Puccinia sorghi",
+      "symptoms": "Các ổ bào tử nhỏ màu nâu đỏ nổi lên trên cả hai mặt lá, khi vỡ tung ra lớp bột như gỉ sắt.",
+      "prevention": "Chọn giống kháng, gieo đúng thời vụ và phun thuốc trừ nấm khi bệnh xuất hiện sớm, nặng."
+    },
+    "Corn_(maize)___Northern_Leaf_Blight": {
+      "name_vi": "Bệnh đốm lá lớn ngô",
+      "group": "fungal",
+      "pathogen": "Nấm Exserohilum turcicum",
+      "symptoms": "Vết bệnh dài hình thoi (như điếu xì gà), dài 2,5–15 cm, màu xám xanh rồi chuyển nâu.",
+      "prevention": "Chọn giống kháng, luân canh và xử lý tàn dư cây bệnh sau thu hoạch."
+    },
+    "Grape___Black_rot": {
+      "name_vi": "Bệnh thối đen nho",
+      "group": "fungal",
+      "pathogen": "Nấm Guignardia bidwellii",
+      "symptoms": "Đốm tròn màu nâu, viền sẫm, có các chấm đen nhỏ trên lá. Quả teo lại, khô đen và cứng.",
+      "prevention": "Loại bỏ quả khô và cành bệnh, tỉa tán thông thoáng, phun phòng từ khi ra chồi đến sau khi hoa tàn."
+    },
+    "Grape___Esca_(Black_Measles)": {
+      "name_vi": "Bệnh Esca (sởi đen) nho",
+      "group": "fungal",
+      "pathogen": "Phức hợp nấm hại gỗ (Phaeomoniella, Phaeoacremonium)",
+      "symptoms": "Lá có các sọc vàng hoặc đỏ giữa các gân (dạng \"da hổ\"), mép lá khô. Quả có đốm tím đen; cây có thể chết đột ngột.",
+      "prevention": "Cắt tỉa khi trời khô ráo và bảo vệ vết cắt, loại bỏ thân cành bị bệnh. Hiện chưa có thuốc chữa khỏi."
+    },
+    "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
+      "name_vi": "Bệnh cháy lá nho",
+      "group": "fungal",
+      "pathogen": "Nấm Pseudocercospora vitis",
+      "symptoms": "Đốm nâu đỏ đến đen, hình dạng không đều trên lá; bệnh nặng làm lá khô và rụng sớm.",
+      "prevention": "Thu gom lá rụng, giữ giàn thông thoáng và phun thuốc trừ nấm vào cuối vụ."
+    },
+    "Orange___Haunglongbing_(Citrus_greening)": {
+      "name_vi": "Bệnh vàng lá gân xanh (Greening)",
+      "group": "bacterial",
+      "pathogen": "Vi khuẩn Candidatus Liberibacter, lây qua rầy chổng cánh",
+      "symptoms": "Lá vàng loang lổ không đối xứng trong khi gân vẫn xanh. Quả nhỏ, méo, chua, hạt lép.",
+      "prevention": "Trồng cây giống sạch bệnh, phòng trừ rầy chổng cánh, nhổ bỏ cây bệnh. Bệnh không chữa được."
+    },
+    "Peach___Bacterial_spot": {
+      "name_vi": "Bệnh đốm vi khuẩn đào",
+      "group": "bacterial",
+      "pathogen": "Vi khuẩn Xanthomonas arboricola pv. pruni",
+      "symptoms": "Đốm nhỏ có góc cạnh, ban đầu sũng nước rồi chuyển tím nâu; mô bệnh rụng đi để lại lỗ thủng. Quả có vết lõm, nứt.",
+      "prevention": "Chọn giống kháng, tránh bón thừa đạm và phun thuốc gốc đồng trong giai đoạn cây ngủ nghỉ."
+    },
+    "Pepper,_bell___Bacterial_spot": {
+      "name_vi": "Bệnh đốm vi khuẩn ớt chuông",
+      "group": "bacterial",
+      "pathogen": "Vi khuẩn Xanthomonas spp.",
+      "symptoms": "Đốm nhỏ sũng nước chuyển nâu, có viền vàng; lá rụng nhiều. Quả có các vết sần nổi.",
+      "prevention": "Dùng hạt giống sạch bệnh, luân canh, tránh tưới phun lên lá và phun thuốc gốc đồng."
+    },
+    "Potato___Early_blight": {
+      "name_vi": "Bệnh đốm vòng khoai tây",
+      "group": "fungal",
+      "pathogen": "Nấm Alternaria solani",
+      "symptoms": "Đốm nâu có các vòng đồng tâm như bia bắn, quanh đốm có quầng vàng; xuất hiện trước ở lá già.",
+      "prevention": "Luân canh, bón phân cân đối, loại bỏ lá bệnh và phun thuốc trừ nấm khi cần."
+    },
+    "Potato___Late_blight": {
+      "name_vi": "Bệnh mốc sương khoai tây",
+      "group": "fungal",
+      "pathogen": "Nấm noãn Phytophthora infestans",
+      "symptoms": "Vết sũng nước màu xanh xám lan nhanh thành nâu đen; khi trời ẩm, mặt dưới lá có lớp mốc trắng. Bệnh lây rất nhanh.",
+      "prevention": "Dùng củ giống sạch bệnh và giống kháng, tiêu hủy cây bệnh, phun phòng khi thời tiết mưa ẩm, mát."
+    },
+    "Squash___Powdery_mildew": {
+      "name_vi": "Bệnh phấn trắng bí",
+      "group": "fungal",
+      "pathogen": "Nấm Podosphaera xanthii",
+      "symptoms": "Các đốm phấn trắng trên cả hai mặt lá, lan dần kín lá; lá vàng rồi khô.",
+      "prevention": "Chọn giống kháng, trồng thưa cho thông thoáng, dùng thuốc gốc lưu huỳnh khi bệnh mới xuất hiện."
+    },
+    "Strawberry___Leaf_scorch": {
+      "name_vi": "Bệnh cháy lá dâu tây",
+      "group": "fungal",
+      "pathogen": "Nấm Diplocarpon earlianum",
+      "symptoms": "Nhiều đốm tím nhỏ, không đều ở mặt trên lá; các đốm liên kết lại làm lá khô như bị cháy.",
+      "prevention": "Loại bỏ lá bệnh, tưới vào gốc thay vì tưới lên lá, trồng thưa và dọn luống sau thu hoạch."
+    },
+    "Tomato___Bacterial_spot": {
+      "name_vi": "Bệnh đốm vi khuẩn cà chua",
+      "group": "bacterial",
+      "pathogen": "Vi khuẩn Xanthomonas spp.",
+      "symptoms": "Đốm nhỏ sũng nước chuyển nâu đen, có quầng vàng trên lá. Quả có các vết sần nhỏ.",
+      "prevention": "Dùng hạt giống sạch bệnh, luân canh, tránh tưới phun lên lá và phun thuốc gốc đồng."
+    },
+    "Tomato___Early_blight": {
+      "name_vi": "Bệnh đốm vòng cà chua",
+      "group": "fungal",
+      "pathogen": "Nấm Alternaria solani",
+      "symptoms": "Đốm nâu có các vòng đồng tâm, quanh đốm có quầng vàng; bắt đầu từ lá già phía dưới rồi lan lên.",
+      "prevention": "Luân canh, tỉa bỏ lá gốc, phủ gốc để đất không bắn lên lá và phun thuốc trừ nấm khi cần."
+    },
+    "Tomato___Late_blight": {
+      "name_vi": "Bệnh mốc sương cà chua",
+      "group": "fungal",
+      "pathogen": "Nấm noãn Phytophthora infestans",
+      "symptoms": "Vết lớn sũng nước màu xanh xám chuyển nâu đen trên lá, thân và quả; mặt dưới lá có mốc trắng khi trời ẩm.",
+      "prevention": "Chọn giống kháng, trồng thưa, tiêu hủy cây bệnh và phun phòng khi thời tiết mưa ẩm, mát."
+    },
+    "Tomato___Leaf_Mold": {
+      "name_vi": "Bệnh mốc lá cà chua",
+      "group": "fungal",
+      "pathogen": "Nấm Passalora fulva",
+      "symptoms": "Đốm vàng nhạt ở mặt trên lá; mặt dưới có lớp mốc màu ô liu đến nâu. Thường gặp trong nhà kính ẩm.",
+      "prevention": "Giảm độ ẩm, tăng thông gió, tránh tưới lên lá và chọn giống kháng."
+    },
+    "Tomato___Septoria_leaf_spot": {
+      "name_vi": "Bệnh đốm lá Septoria cà chua",
+      "group": "fungal",
+      "pathogen": "Nấm Septoria lycopersici",
+      "symptoms": "Nhiều đốm tròn nhỏ, tâm xám trắng, viền nâu sẫm, giữa đốm có chấm đen; xuất hiện trước ở lá phía dưới.",
+      "prevention": "Loại bỏ lá bệnh, luân canh, phủ gốc, tưới vào gốc và phun thuốc trừ nấm khi cần."
+    },
+    "Tomato___Spider_mites Two-spotted_spider_mite": {
+      "name_vi": "Nhện đỏ hai chấm hại cà chua",
+      "group": "pest",
+      "pathogen": "Nhện Tetranychus urticae",
+      "symptoms": "Lá có nhiều chấm li ti màu vàng trắng, sau đó bạc màu hoặc ngả màu đồng; mặt dưới lá có tơ mịn. Nặng khi trời nóng, khô.",
+      "prevention": "Phun nước vào mặt dưới lá, bảo vệ thiên địch và luân phiên các loại thuốc trừ nhện."
+    },
+    "Tomato___Target_Spot": {
+      "name_vi": "Bệnh đốm đích cà chua",
+      "group": "fungal",
+      "pathogen": "Nấm Corynespora cassiicola",
+      "symptoms": "Đốm nâu có vòng đồng tâm, tâm nhạt màu trên lá; quả có các vết lõm màu nâu.",
+      "prevention": "Tỉa lá cho thông thoáng, dọn tàn dư cây bệnh, luân canh và phun thuốc trừ nấm khi cần."
+    },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+      "name_vi": "Bệnh xoăn vàng lá cà chua",
+      "group": "viral",
+      "pathogen": "Virus TYLCV, lây qua bọ phấn trắng",
+      "symptoms": "Lá non vàng, nhỏ lại và xoăn cuốn lên trên; cây lùn, rụng hoa, ít quả.",
+      "prevention": "Phòng trừ bọ phấn trắng, dùng lưới chắn côn trùng, chọn giống kháng và nhổ bỏ cây bệnh."
+    },
+    "Tomato___Tomato_mosaic_virus": {
+      "name_vi": "Bệnh khảm lá cà chua",
+      "group": "viral",
+      "pathogen": "Virus ToMV, lây qua tay, dụng cụ và hạt giống",
+      "symptoms": "Lá có các mảng xanh đậm và xanh nhạt xen kẽ, lá nhỏ, hẹp và biến dạng.",
+      "prevention": "Dùng hạt giống sạch bệnh, khử trùng dụng cụ, rửa tay trước khi chăm sóc và nhổ bỏ cây bệnh."
+    }
+  }
+}

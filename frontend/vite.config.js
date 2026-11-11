@@ -8,6 +8,8 @@ import tailwindcss from '@tailwindcss/vite'
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
 
 export default defineConfig({
+  // Đọc VITE_* từ .env ở gốc project (dùng chung với backend), không phải frontend/.env
+  envDir: '..',
   plugins: [
     react(),
     tailwindcss(),
