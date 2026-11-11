@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Hãy đặt POSTGRES_PASSWORD trong file .env}
+      POSTGRES_DB: ${POSTGRES_DB:-pestdb}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Các file .sql trong thư mục này chạy theo thứ tự tên, CHỈ chạy lần đầu khi volume còn trống
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./database/seed_data.sql:/docker-entrypoint-initdb.d/02-seed_data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-pestdb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Không mở cổng ra ngoài: chỉ các service trong compose mới gọi được db
+
+  ai-service:
+    build: ./ai-service
+    restart: unless-stopped
+    volumes:
+      # Để file model (.pt / .onnx) ngoài image, đổi model không cần build lại
+      - ./ai-service/models:/app/models:ro
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    environment:
+      # Trong mạng của compose, gọi nhau bằng tên service (db, ai-service), không dùng localhost
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-pestdb}
+      AI_SERVICE_URL: http://ai-service:8001
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      # Cổng duy nhất mở ra ngoài. Mặc định 80 (cho server); máy local đặt FRONTEND_PORT=3000 trong .env
+      - "${FRONTEND_PORT:-80}:80"
+
+volumes:
+  pgdata:
