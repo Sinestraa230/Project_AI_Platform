@@ -1,0 +1,13 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Env
+.env
+
+# AI artifacts (không commit model)
+ai_artifacts/*
+!ai_artifacts/.gitkeep
