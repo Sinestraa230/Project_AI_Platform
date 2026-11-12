@@ -10,7 +10,7 @@ function ProtectedRoute() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-500">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-500 dark:bg-gray-950">
         <Loader2 className="animate-spin" size={28} />
       </div>
     )

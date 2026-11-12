@@ -18,3 +18,5 @@ uploads/
 # AI artifacts (không commit model)
 ai_artifacts/*
 !ai_artifacts/.gitkeep
+.vercel
+.env*

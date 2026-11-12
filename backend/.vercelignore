@@ -1,0 +1,6 @@
+.venv
+app.db
+uploads
+__pycache__
+tests
+ai_artifacts
