@@ -1,0 +1,43 @@
+# Git / editor
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Python environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local env / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Model files and large artifacts
+models/
+*.h5
+*.keras
+*.pt
+*.onnx
+*.bin
+*.zip
+
+# Logs / temp
+*.log
+tmp/
+.tmp/
+
+# OS junk
+.DS_Store
+Thumbs.db
