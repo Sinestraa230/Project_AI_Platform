@@ -1,1 +1,21 @@
+# Người review mặc định theo thư mục. GitHub tự gắn reviewer khi PR chạm vào các file này.
+# Chỉ có tác dụng chặn merge khi bật "Require review from Code Owners" trong branch protection.
+# TODO: điền đúng GitHub username của FE / DBA / Docker (dòng đang comment).
 
+# Backend
+/backend/              @namhai0510
+
+# Frontend
+# /frontend/           @<username-FE>
+
+# Database / migration
+# /database/           @<username-DBA>
+
+# Docker (Dockerfile, compose, nginx)
+# /docker/             @<username-Docker>
+# /backend/Dockerfile  @<username-Docker>
+# /frontend/Dockerfile @<username-Docker>
+# /docker-compose.yml  @<username-Docker>
+
+# CI/CD
+/.github/              @Sinestraa230
