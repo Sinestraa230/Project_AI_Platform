@@ -23,6 +23,10 @@ def _path(key: str, default: Path) -> str:
 APP_ENV = _env("APP_ENV", "development")
 HOST = _env("HOST", "0.0.0.0")
 PORT = int(_env("PORT", "8000"))
+IMAGE_STORAGE = _env("IMAGE_STORAGE", "db").lower()
+CORS_ORIGINS = [origin.strip() for origin in _env("CORS_ORIGINS", "*").split(",") if origin.strip()]
+if not CORS_ORIGINS:
+    CORS_ORIGINS = ["*"]
 DATABASE_URL = _env("DATABASE_URL", f"sqlite:///{BASE_DIR / 'app.db'}")
 if DATABASE_URL.startswith("sqlite:///./"):
     DATABASE_URL = f"sqlite:///{BASE_DIR / DATABASE_URL[len('sqlite:///./'):]}"

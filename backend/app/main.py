@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api import routes_crop, routes_history, routes_model, routes_predict
-from .config import APP_ENV
+from .config import APP_ENV, CORS_ORIGINS
 from .database import init_db
 from .services.ai.model_loader import get_mapping, get_model, get_model_info, get_model_version
 
@@ -33,9 +33,11 @@ app = FastAPI(
 )
 
 # Thu hẹp allow_origins về domain frontend khi lên production
+allowed_origins = CORS_ORIGINS if CORS_ORIGINS and CORS_ORIGINS != ["*"] else ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

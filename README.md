@@ -80,22 +80,28 @@
 
 ---
 
-### Lấy model AI để chạy backend
+### Chạy local bằng Docker (giống Vercel)
 
-Model không nằm trong git (file nặng). Notebook Kaggle tự upload lên Hugging Face: `NamHai0510/plant-disease-model` (private).
+Môi trường local cần tách Frontend và Backend như deployment thực tế trên Vercel:
 
-1. Nhờ người quản lý repo HF mời tài khoản của bạn vào repo, rồi tạo token loại **Read** tại https://huggingface.co/settings/tokens.
-2. `cd backend` → copy `.env.example` thành `.env` → điền `HF_TOKEN`.
-3. `pip install -r requirements.txt`
-4. `python scripts/download_model.py` (hoặc chạy thẳng backend: thiếu model thì tự tải khi khởi động).
-5. `uvicorn app.main:app --reload`
+1. Backend: http://localhost:8000/health
+2. Frontend: http://localhost:8080
+3. Không cần `HF_TOKEN` cho backend khi chạy local bằng Docker, vì model AI được tải trong trình duyệt (LiteRT.js) theo script `frontend/scripts/prepare-model.mjs`.
 
-Có bản model mới: `python scripts/download_model.py --force`.
+Cách chạy:
 
-**Phiên bản model:** mỗi lần train, notebook tạo mã phiên bản dạng `efficientnetb3-YYYYMMDD-HHMM`, ghi vào `model_info.json` (ngày train, accuracy, TF/Keras version…) và gắn **tag** cùng tên trên HF.
-- Xem đang chạy bản nào: `GET /health` (hoặc trường `model_version` trong mỗi kết quả `/api/predict`).
-- Ghim cả team vào 1 bản: đặt `HF_REVISION=<tag>` trong `backend/.env` rồi `python scripts/download_model.py --force`.
-- Quay lại bản cũ: đổi `HF_REVISION` sang tag cũ, tải lại như trên.
+```bash
+docker compose down -v
+
+docker compose up --build
+```
+
+Sau khi khởi động:
+
+- Frontend phục vụ SPA trên cổng `8080` và tự rewrite các route con về `/index.html`.
+- Backend FastAPI chạy trên cổng `8000` và có route `/health` dùng cho healthcheck.
+- Database Postgres chạy trong service `db` và `IMAGE_STORAGE=db` được set rõ trong compose.
+- `VITE_API_URL` được gắn lúc build, vì vậy cần rebuild image khi thay đổi địa chỉ backend.
 
 ---
 

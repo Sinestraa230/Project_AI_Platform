@@ -1,48 +1,8 @@
-# Git / editor
-.git
-.gitignore
-.vscode/
-.idea/
-
-# Environment and secrets
-.env
-.env.*
-*.pem
-*.key
-
-# Python virtual environments
-.venv/
-venv/
-env/
-
-# Python cache / compiled files
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Local databases / temp files
-*.sqlite3
-*.db
+.venv
 app.db
-*.log
-.tmp/
-tmp/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Test / dev artifacts
-tests/
-coverage/
-
-# Build output
-build/
-dist/
-*.egg-info/
+uploads
+__pycache__
+tests
+ai_artifacts
+.env*
+.vercel
