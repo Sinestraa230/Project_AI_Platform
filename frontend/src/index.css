@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 * {
   box-sizing: border-box;
@@ -8,7 +9,158 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ---------------------------------------------------------------------
+   Bảng màu riêng: xanh rêu + xám ngả lục, thay bảng mặc định của Tailwind.
+   Component vẫn dùng green-* / gray-* nên tự đổi theo.
+   --------------------------------------------------------------------- */
+@theme {
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+
+  --color-green-50: #eef4ec;
+  --color-green-100: #dbe8d6;
+  --color-green-200: #bdd3b5;
+  --color-green-300: #93b48a;
+  --color-green-400: #8fbf86;
+  --color-green-500: #4f8a55;
+  --color-green-600: #3a6b41;
+  --color-green-700: #2b5834;
+  --color-green-800: #1f4226;
+  --color-green-900: #12401f;
+  --color-green-950: #0c2412;
+
+  --color-gray-50: #f6f8f4;
+  --color-gray-100: #eef2ec;
+  --color-gray-200: #dfe5dc;
+  --color-gray-300: #c5cec1;
+  --color-gray-400: #94a097;
+  --color-gray-500: #526658;
+  --color-gray-600: #4a5f51;
+  --color-gray-700: #3f5244;
+  --color-gray-800: #2a352d;
+  --color-gray-900: #1f2922;
+  --color-gray-950: #141a16;
+}
+
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-sans);
+  color: var(--color-gray-900);
+}
+
+/* Lớp kính: nền trong mờ trên các đốm màu nền (xem MainLayout) */
+@layer components {
+  /* Sáng: kính trong, ánh màu nền xuyên qua, ánh bóng chéo + mép trên sáng */
+  .glass-panel {
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.25) 60%),
+      rgb(255 255 255 / 0.2);
+    backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgb(255 255 255 / 0.65);
+    border-top-color: rgb(255 255 255 / 0.95);
+    box-shadow:
+      0 20px 40px -14px rgb(22 60 32 / 0.18),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.9),
+      inset 0 0 0 1px rgb(255 255 255 / 0.15);
+  }
+  .glass-card {
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.2));
+    border: 1px solid rgb(255 255 255 / 0.6);
+    border-top-color: rgb(255 255 255 / 0.95);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.8), 0 6px 18px -6px rgb(22 60 32 / 0.1);
+    transition: background .15s, border-color .15s, box-shadow .15s;
+  }
+  .glass-card:hover {
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.35));
+    border-color: rgb(43 88 52 / 0.3);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.9), 0 0 24px -4px rgb(43 88 52 / 0.2);
+  }
+  /* Tối: kính khói trong suốt, ánh màu nền xuyên qua, viền và vệt sáng rõ */
+  .dark .glass-panel {
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.02) 60%),
+      rgb(20 28 23 / 0.28);
+    backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-top-color: rgb(255 255 255 / 0.22);
+    box-shadow:
+      0 20px 40px -12px rgb(0 0 0 / 0.6),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.12),
+      inset 0 0 0 1px rgb(255 255 255 / 0.02);
+  }
+  .dark .glass-card {
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.02));
+    border-color: rgb(255 255 255 / 0.1);
+    border-top-color: rgb(255 255 255 / 0.18);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.1);
+  }
+  .dark .glass-card:hover {
+    background: linear-gradient(135deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.04));
+    border-color: rgb(143 191 134 / 0.45);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.14), 0 0 24px -4px rgb(143 191 134 / 0.25);
+  }
+}
+
+/* Các thẻ cũ (rounded-2xl bg-white) ở những trang khác cũng thành kính */
+@layer utilities {
+  main .rounded-2xl.bg-white:not(.keep-light) {
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.25) 60%),
+      rgb(255 255 255 / 0.2);
+    backdrop-filter: blur(28px) saturate(180%);
+    border-color: rgb(255 255 255 / 0.65);
+    border-top-color: rgb(255 255 255 / 0.95);
+    box-shadow: 0 20px 40px -14px rgb(22 60 32 / 0.18), inset 0 1px 0 0 rgb(255 255 255 / 0.9);
+  }
+  .dark main .rounded-2xl.bg-white:not(.keep-light) {
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.02) 60%),
+      rgb(20 28 23 / 0.28);
+    backdrop-filter: blur(28px) saturate(180%);
+    border-color: rgb(255 255 255 / 0.12);
+    border-top-color: rgb(255 255 255 / 0.22);
+    box-shadow: 0 20px 40px -12px rgb(0 0 0 / 0.6), inset 0 1px 0 0 rgb(255 255 255 / 0.12);
+  }
+}
+/* ---------------------------------------------------------------------
+   Chế độ tối cho nội dung trang (thẻ, bảng, form, hộp thoại).
+   Các component dùng màu sáng cố định (bg-white, text-gray-900...);
+   thay vì thêm dark: vào từng file, đổi màu tập trung ở đây.
+   Phạm vi: trong <main> và các hộp thoại .fixed. Thêm class
+   "keep-light" cho phần tử muốn giữ nguyên màu sáng.
+   --------------------------------------------------------------------- */
+@layer utilities {
+  .dark :is(main, .fixed) :not(.keep-light) {
+    &.bg-white { background-color: var(--color-gray-900); }
+    &.bg-gray-50, &.bg-gray-100 { background-color: var(--color-gray-800); }
+    &.bg-gray-200, &.bg-gray-300 { background-color: var(--color-gray-700); }
+    &.bg-green-50, &.bg-green-100, &.bg-emerald-100 { background-color: color-mix(in oklab, var(--color-green-500) 15%, transparent); }
+    &.bg-red-50 { background-color: color-mix(in oklab, var(--color-red-500) 15%, transparent); }
+    &.bg-blue-50, &.bg-blue-100 { background-color: color-mix(in oklab, var(--color-blue-500) 15%, transparent); }
+    &.bg-orange-50, &.bg-orange-100 { background-color: color-mix(in oklab, var(--color-orange-500) 15%, transparent); }
+    &.bg-purple-50 { background-color: color-mix(in oklab, var(--color-purple-500) 15%, transparent); }
+    &.bg-amber-50 { background-color: color-mix(in oklab, var(--color-amber-500) 15%, transparent); }
+
+    &.text-gray-900, &.text-gray-800 { color: var(--color-gray-100); }
+    &.text-gray-700, &.text-gray-600 { color: var(--color-gray-300); }
+    &.text-gray-500 { color: var(--color-gray-400); }
+    &.text-green-700, &.text-green-800, &.text-green-900, &.text-emerald-700 { color: var(--color-green-400); }
+    &.text-red-700 { color: var(--color-red-400); }
+    &.text-blue-700, &.text-blue-900 { color: var(--color-blue-300); }
+    &.text-orange-700 { color: var(--color-orange-400); }
+    &.text-amber-700, &.text-amber-800 { color: var(--color-amber-300); }
+
+    &.border-gray-100, &.border-gray-200, &.border-gray-300 { border-color: var(--color-gray-800); }
+    &.divide-gray-100 > * + * { border-color: var(--color-gray-800); }
+    &.border-red-100, &.border-red-200 { border-color: color-mix(in oklab, var(--color-red-500) 30%, transparent); }
+    &.border-green-200, &.border-blue-100, &.border-amber-200 { border-color: var(--color-gray-700); }
+
+    &.hover\:bg-gray-50:hover, &.hover\:bg-gray-100:hover { background-color: var(--color-gray-800); }
+    &.hover\:bg-green-50:hover, &.hover\:bg-green-100:hover { background-color: color-mix(in oklab, var(--color-green-500) 20%, transparent); }
+    &.hover\:bg-red-50:hover, &.hover\:bg-red-100:hover { background-color: color-mix(in oklab, var(--color-red-500) 20%, transparent); }
+  }
+
+  .dark :is(main, .fixed) :is(input, select, textarea):not(.keep-light) {
+    color: var(--color-gray-100);
+    color-scheme: dark;
+  }
 }

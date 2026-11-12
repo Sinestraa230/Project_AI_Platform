@@ -31,3 +31,5 @@ dist-ssr
 # Sinh ra bởi scripts/prepare-model.mjs (model + runtime LiteRT.js, file nặng)
 public/model/
 public/litert/
+.vercel
+.env*

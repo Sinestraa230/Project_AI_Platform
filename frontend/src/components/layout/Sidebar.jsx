@@ -1,119 +1,84 @@
-
 import { NavLink } from 'react-router-dom'
 
 import {
-  LayoutDashboard,
-  ScanSearch,
-  History,
+  LayoutGrid,
+  Stethoscope,
+  ScrollText,
   BookOpen,
-  Settings,
+  SlidersHorizontal,
   Sprout,
+  WifiOff,
 } from 'lucide-react'
 
 const menuItems = [
-  {
-    name: 'Tổng quan',
-    path: '/',
-    icon: LayoutDashboard,
-  },
-  {
-    name: 'Chẩn đoán',
-    path: '/diagnosis',
-    icon: ScanSearch,
-  },
-  {
-    name: 'Lịch sử',
-    path: '/history',
-    icon: History,
-  },
-  {
-    name: 'Thư viện bệnh',
-    path: '/library',
-    icon: BookOpen,
-  },
-  {
-    name: 'Cài đặt',
-    path: '/settings',
-    icon: Settings,
-  },
+  { name: 'Tổng quan vườn', path: '/', icon: LayoutGrid },
+  { name: 'Chẩn đoán bệnh', path: '/diagnosis', icon: Stethoscope },
+  { name: 'Sổ tay sâu bệnh', path: '/library', icon: BookOpen },
+  { name: 'Lịch sử khám vườn', path: '/history', icon: ScrollText },
+  { name: 'Cài đặt', path: '/settings', icon: SlidersHorizontal },
 ]
 
 function Sidebar() {
   return (
-    <aside className="flex h-screen w-[260px] shrink-0 flex-col border-r border-gray-200 bg-white">
-
-      {/* Logo */}
-      <div className="flex h-[85px] items-center gap-3 border-b border-gray-100 px-6">
-
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-100">
-          <Sprout size={27} className="text-green-700" />
-        </div>
-
-        <div>
-          <h1 className="text-lg font-bold text-gray-900">
-            AI Plant Platform
-          </h1>
-
-          <p className="text-xs text-gray-500">
-            Smart Agriculture
-          </p>
-        </div>
-
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 space-y-2 px-4 py-7">
-
-        <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
-          Menu chính
-        </p>
-
-        {menuItems.map((item) => {
-          const Icon = item.icon
-
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'bg-green-50 text-green-800'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-green-700'
-                }`
-              }
-            >
-              <Icon size={20} strokeWidth={1.8} />
-
-              <span>{item.name}</span>
-            </NavLink>
-          )
-        })}
-
-      </nav>
-
-      {/* Footer */}
-      <div className="border-t border-gray-100 p-5">
-
-        <div className="rounded-xl bg-green-50 p-4">
-
-          <div className="flex items-center gap-2 text-green-800">
-            <Sprout size={18} />
-
-            <span className="text-sm font-semibold">
-              Nông nghiệp thông minh
-            </span>
+    <aside className="glass-panel relative z-20 flex h-screen w-64 shrink-0 flex-col justify-between border-y-0 border-l-0 p-5">
+      <div>
+        {/* Tên app */}
+        <div className="flex items-center gap-3 border-b border-green-700/10 pb-6 dark:border-white/5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-700 text-white shadow-md shadow-green-700/20">
+            <Sprout size={22} />
           </div>
-
-          <p className="mt-2 text-xs leading-5 text-green-700">
-            Công nghệ AI đồng hành cùng nhà nông.
-          </p>
-
+          <div>
+            <div className="text-sm font-bold text-green-900 dark:text-green-400">
+              Sổ khám vườn
+            </div>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400">
+              Nhận diện bệnh qua ảnh lá
+            </div>
+          </div>
         </div>
 
+        <nav className="mt-6 space-y-1.5">
+          {menuItems.map((item) => {
+            const Icon = item.icon
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm transition ${
+                    isActive
+                      ? 'border-green-700/20 bg-green-700/10 font-semibold text-green-900 shadow-sm dark:border-green-400/20 dark:bg-green-400/10 dark:text-green-400'
+                      : 'border-transparent text-gray-600 hover:bg-white/50 hover:text-green-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-green-400'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon size={19} strokeWidth={1.8} />
+                    <span>{item.name}</span>
+                    {isActive && (
+                      <span className="ml-auto h-2 w-2 rounded-full bg-green-700 dark:bg-green-400" />
+                    )}
+                  </>
+                )}
+              </NavLink>
+            )
+          })}
+        </nav>
       </div>
 
+      {/* Model chạy ngay trên máy: chẩn đoán được cả khi mạng chập chờn */}
+      <div className="rounded-xl border border-green-700/15 bg-white/60 p-3.5 text-xs shadow-sm dark:border-white/5 dark:bg-white/5">
+        <div className="flex items-center gap-2 font-medium text-green-900 dark:text-green-400">
+          <WifiOff size={14} />
+          <span>Chẩn đoán trên máy</span>
+        </div>
+        <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+          Ảnh được phân tích ngay trong trình duyệt. Tải model một lần, lần sau không cần chờ.
+        </p>
+      </div>
     </aside>
   )
 }
