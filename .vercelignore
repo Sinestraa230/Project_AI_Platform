@@ -1,0 +1,19 @@
+# Vercel CLI upload từ gốc repo (Root Directory của project được áp dụng phía Vercel)
+.git
+.github
+**/node_modules
+**/.venv
+**/__pycache__
+**/dist
+backend/ai_artifacts
+backend/app.db
+backend/uploads
+backend/tests
+frontend/public/model
+frontend/public/litert
+ai-service
+database
+docker
+docker-compose.yml
+.env
+.env.*

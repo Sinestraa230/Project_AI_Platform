@@ -29,3 +29,6 @@ Thumbs.db
 .vscode/
 .idea/
 .claude/
+
+# Vercel CLI (vercel link / vercel pull) — chứa projectId, env kéo về
+.vercel/

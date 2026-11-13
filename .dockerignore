@@ -1,0 +1,26 @@
+# Áp dụng cho build có context = gốc repo (frontend/Dockerfile).
+# backend/Dockerfile dùng context backend/ nên theo backend/.dockerignore.
+.git
+.github
+.claude
+.vscode
+.idea
+.vercel
+**/.vercel
+**/node_modules
+**/dist
+**/.venv
+**/__pycache__
+**/.pytest_cache
+.env
+.env.*
+!.env.example
+backend/ai_artifacts
+backend/app.db
+backend/uploads
+backend/tests
+frontend/public/model
+frontend/public/litert
+ai-service
+database
+docs

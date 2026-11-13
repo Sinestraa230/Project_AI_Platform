@@ -1,71 +1,85 @@
 # =====================================================================
-# Chạy toàn bộ hệ thống trên máy cá nhân (app FE+BE + PostgreSQL):
-#   1. copy .env.example -> .env ở thư mục gốc, điền POSTGRES_PASSWORD, HF_TOKEN
-#   2. docker compose up --build
-#   3. mở http://localhost:8000
+# Chạy TOÀN BỘ hệ thống trên máy cá nhân bằng Docker: PostgreSQL + backend + frontend.
 #
-# Xoá sạch DB để init lại từ đầu:  docker compose down -v
+#   1. copy .env.example -> .env ở gốc repo, điền ít nhất POSTGRES_PASSWORD
+#   2. docker compose up --build
+#   3. mở http://localhost:3000   (API: http://localhost:8000/docs)
+#
+# Xoá sạch dữ liệu để làm lại từ đầu:  docker compose down -v
+# Chỉ cần Postgres (chạy FE/BE bằng npm/uvicorn): xem docker/docker-compose.dev.yml
+# Chi tiết: docker/README.md
 # =====================================================================
 name: plant-disease
 
 services:
+  # ------------------------------------------------------------------
   db:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Hãy đặt POSTGRES_PASSWORD trong file .env}
-      POSTGRES_DB: ${POSTGRES_DB:-pestdb}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Hãy đặt POSTGRES_PASSWORD trong file .env ở gốc repo}
+      POSTGRES_DB: ${POSTGRES_DB:-plantdb}
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # Toàn bộ thư mục database/ có sẵn trong container tại /database
+      # Migration/seed của DBA có sẵn trong container để chạy tay khi cần:
+      #   docker compose exec db psql -U postgres -d plantdb -f /database/migrations/V1__init_db.sql
+      # (Backend hiện tự tạo bảng lúc khởi động, nên không chạy tự động ở đây.)
       - ./database:/database:ro
-      # Chỉ init.sql được Postgres tự chạy (1 lần, khi volume còn trống).
-      # init.sql phải gọi lần lượt:
-      #   \i /database/migrations/V1__....sql
-      #   \i /database/migrations/V2__....sql  ...
-      #   \i /database/seed_data.sql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
     ports:
-      # Chỉ mở cho máy mình (để xem DB bằng DBeaver/pgAdmin)
       - "127.0.0.1:${DB_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-pestdb}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-plantdb}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  app:
+  # ------------------------------------------------------------------
+  backend:
     build:
-      context: .
-      dockerfile: Dockerfile
-    image: plant-disease-app:local
+      context: ./backend
+    image: ${DOCKERHUB_USERNAME:-local}/plant-backend:${IMAGE_TAG:-local}
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     environment:
-      APP_ENV: development
+      APP_ENV: ${APP_ENV:-development}
       PORT: "8000"
-      # Trong compose gọi DB bằng tên service "db", không dùng localhost
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-pestdb}
-      HF_TOKEN: ${HF_TOKEN:-}
-      HF_REPO_ID: ${HF_REPO_ID:-NamHai0510/plant-disease-model}
-      HF_REVISION: ${HF_REVISION:-}
-      AUTO_DOWNLOAD_MODEL: "true"
-      SAVE_TO_DB: "true"
+      # Gọi DB bằng tên service "db", không phải localhost
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-plantdb}
+      # Ảnh lưu trong DB để không mất khi container bị tạo lại
+      IMAGE_STORAGE: ${IMAGE_STORAGE:-db}
+      # FE gọi API qua nginx cùng origin nên CORS không cần thiết; để * cho tiện gọi thẳng :8000
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      CONFIDENCE_THRESHOLD: ${CONFIDENCE_THRESHOLD:-0.6}
+      SESSION_TTL_DAYS: ${SESSION_TTL_DAYS:-7}
     ports:
-      - "${APP_PORT:-8000}:8000"
-    volumes:
-      # Giữ model đã tải giữa các lần khởi động, khỏi tải lại từ HF
-      - model-cache:/app/ai_artifacts
+      - "127.0.0.1:${API_PORT:-8000}:8000"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 120s
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # ------------------------------------------------------------------
+  frontend:
+    build:
+      context: .                    # gốc repo: cần backend/app/data/model/ lúc build
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: ""            # trống = gọi /api cùng origin, nginx proxy sang backend
+        SKIP_MODEL_DOWNLOAD: ${SKIP_MODEL_DOWNLOAD:-}
+    image: ${DOCKERHUB_USERNAME:-local}/plant-frontend:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      BACKEND_UPSTREAM: http://backend:8000
+    ports:
+      - "${APP_PORT:-3000}:80"
 
 volumes:
   pgdata:
-  model-cache:
