@@ -4,3 +4,6 @@ uploads
 __pycache__
 tests
 ai_artifacts
+.env
+.env.local
+.pytest_cache
