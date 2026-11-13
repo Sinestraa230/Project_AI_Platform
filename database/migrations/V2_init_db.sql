@@ -1,26 +1,3 @@
-CREATE TABLE users(
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
-);
-
-CREATE TABLE categories (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    metadata JSONB
-
-);
-
-CREATE TABLE prediction_logs(
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE SET NULL,
-    image_url TEXT NOT NULL,
-    category_id INT REFERENCES categories(id),
-    confidence_score DECIMAL(5,2),
-    metadata JSONB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    
-
-);
+-- V2: bổ sung cột metadata cho prediction_logs (V1 bản đầu chưa có).
+-- IF NOT EXISTS: chạy an toàn cả trên DB đã có cột này.
+ALTER TABLE prediction_logs ADD COLUMN IF NOT EXISTS metadata JSONB;
