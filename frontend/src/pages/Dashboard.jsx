@@ -19,7 +19,7 @@ const STATUS = {
   disease: {
     border: 'border-l-red-600',
     badge: 'border-red-200 bg-red-100 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300',
-    label: 'Có dấu hiệu bệnh',
+    label: 'Có dấu hiệu bệnh trên lá cây',
     score: 'text-red-700 dark:text-red-400',
   },
   healthy: {
